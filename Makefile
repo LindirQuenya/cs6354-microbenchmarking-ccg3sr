@@ -2,12 +2,11 @@ CFLAGS := -O3 -march=native -Wall -Wextra -Iinclude
 LDFLAGS := -lpthread
 BIN := build
 SRCS := $(wildcard src/*.c)
-BINS := $(patsubst src/%.c,$(BIN)/%,$(SRCS))
 
-all: $(BIN) $(BINS)
+all: $(BIN) $(BIN)/benchmark
 
-$(BIN)/%: src/%.c | $(BIN)
-	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+$(BIN)/benchmark: $(BIN) $(SRCS)
+	$(CC) $(CFLAGS) -o $@ $(SRCS) $(LDFLAGS)
 
 $(BIN):
 	mkdir -p $(BIN)

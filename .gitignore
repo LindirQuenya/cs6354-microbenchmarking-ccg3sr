@@ -1,1 +1,3 @@
 build
+# Ignore nano lock files
+*.swp
