@@ -1,5 +1,5 @@
 CFLAGS := -O3 -march=native -Wall -Wextra -Iinclude
-LDFLAGS := -lpthread -lgsl
+LDFLAGS := -lpthread -lm
 BIN := build
 SRCS := $(wildcard src/*.c)
 
