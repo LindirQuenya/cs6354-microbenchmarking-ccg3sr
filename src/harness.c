@@ -1,8 +1,14 @@
+#define _GNU_SOURCE
+#include <sched.h>
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <x86intrin.h>
 #include <emmintrin.h>
 #include <math.h>
+#include <pthread.h>
+
+#include "00_function_call.h"
 
 struct runtime_stats {
     double mean;
@@ -11,11 +17,6 @@ struct runtime_stats {
 
 void printRuntimeStats(struct runtime_stats stats) {
     printf("Mean: %f, SD: %f\n", stats.mean, stats.sd);
-}
-
-__attribute__((noinline)) void emptyFunction() {
-    asm ("");
-    // Intentionally empty
 }
 
 double int_stats_mean(const int data[], const size_t n) {
@@ -49,18 +50,17 @@ int measureNothing() {
 
 int measureFunction(void (*func)()) {
     unsigned long long start, end;
-    _mm_lfence();
-    start = __rdtsc();
+    unsigned int tsc_aux;
+    start = __rdtscp(&tsc_aux);
     _mm_lfence();
     func();
-    _mm_lfence();
-    end = __rdtsc();
+    end = __rdtscp(&tsc_aux);
     _mm_lfence();
     return end - start;
 }
 
 struct runtime_stats timingOverhead(int runs) {
-    int *runtimeArray = malloc(runs * sizeof(int));
+    int *runtimeArray = malloc(sizeof(int) * runs);
 
     // Warm-up phase to stabilize CPU state.
     for (int i = 0; i < runs/10; i++) {
@@ -78,14 +78,14 @@ struct runtime_stats timingOverhead(int runs) {
 }
 
 struct runtime_stats timingHarness(void (*func)(), int runs) {
-    int *runtimeArray = malloc(runs * sizeof(int));
+    int *runtimeArray = malloc(sizeof(int) * runs);
 
     // Warm-up phase to stabilize CPU state.
     for (int i = 0; i < runs/10; i++) {
-        measureFunction(emptyFunction);
+        measureFunction(func);
     }
     for (int i = 0; i < runs; i++) {
-        runtimeArray[i] = measureFunction(emptyFunction);
+        runtimeArray[i] = measureFunction(func);
     }
     double mean = int_stats_mean(runtimeArray, runs);
     double sd = int_stats_sd(runtimeArray, runs);
@@ -106,6 +106,21 @@ void storeResults(struct runtime_stats stats, const char* benchmarkName) {
 
 int main(int argc, char** argv){
     /* Setup code -- e.g., CPU pinning, disabling features, etc. */
+    // Inspired by the example in man 3 pthread_setaffinity_np
+    pthread_t thisThread = pthread_self();
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+    CPU_SET(1, &cpuset);
+    int s = pthread_setaffinity_np(thisThread, sizeof(cpuset), &cpuset);
+    if (s != 0) {
+        err(EXIT_FAILURE, "code: %d from pthread_setaffinity_np", s);
+    }
+    s = pthread_getaffinity_np(thisThread, sizeof(cpu_set_t), &cpuset);
+    printf("Set returned by pthread_getaffinity_np() contained:\n");
+    for (size_t j = 0; j < CPU_SETSIZE; j++)
+        if (CPU_ISSET(j, &cpuset))
+            printf("    CPU %zu\n", j);
+
     int runs = argc > 1 ? atoi(argv[1]) : 1000;
 
     /* Running microbenchmarks and generating results. */
@@ -114,7 +129,7 @@ int main(int argc, char** argv){
     printRuntimeStats(stats);
     storeResults(stats, "timingOverhead");
 
-    stats = timingHarness(emptyFunction, runs);
+    stats = timingHarness(function_call_v_v, runs);
     printRuntimeStats(stats);
     storeResults(stats, "timingHarness");
     return 0;
