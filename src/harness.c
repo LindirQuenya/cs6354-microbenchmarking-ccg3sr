@@ -4,6 +4,15 @@
 #include <emmintrin.h>
 #include <math.h>
 
+struct runtime_stats {
+    double mean;
+    double sd;
+};
+
+void printRuntimeStats(struct runtime_stats stats) {
+    printf("Mean: %f, SD: %f\n", stats.mean, stats.sd);
+}
+
 __attribute__((noinline)) void emptyFunction() {
     asm ("");
     // Intentionally empty
@@ -27,34 +36,67 @@ double int_stats_sd(const int data[], const size_t n) {
     return sqrt(sum_sq_diff / n);
 }
 
+int measureNothing() {
+    unsigned long long start, end;
+    _mm_lfence();
+    start = __rdtsc();
+    _mm_lfence();
+    _mm_lfence();
+    end = __rdtsc();
+    _mm_lfence();
+    return end - start;
+}
+
 int measureFunction(void (*func)()) {
     unsigned long long start, end;
     _mm_lfence();
     start = __rdtsc();
     _mm_lfence();
-    //func();
+    func();
     _mm_lfence();
     end = __rdtsc();
     _mm_lfence();
-    printf("Cycles: %llu\n", end - start);
     return end - start;
+}
+
+struct runtime_stats timingOverhead(int runs) {
+    int runtimeArray[runs];
+
+    // Warm-up phase to stabilize CPU state.
+    for (int i = 0; i < runs/10; i++) {
+        measureNothing();
+    }
+    for (int i = 0; i < runs; i++) {
+        runtimeArray[i] = measureNothing();
+;
+    }
+    double mean = int_stats_mean(runtimeArray, runs);
+    double sd = int_stats_sd(runtimeArray, runs);
+    struct runtime_stats stats = {mean, sd};
+    return stats;
+}
+
+struct runtime_stats timingHarness(void (*func)(), int runs) {
+    int runtimeArray[runs];
+
+    // Warm-up phase to stabilize CPU state.
+    for (int i = 0; i < runs/10; i++) {
+        measureFunction(emptyFunction);
+    }
+    for (int i = 0; i < runs; i++) {
+        runtimeArray[i] = measureFunction(emptyFunction);
+    }
+    double mean = int_stats_mean(runtimeArray, runs);
+    double sd = int_stats_sd(runtimeArray, runs);
+    struct runtime_stats stats = {mean, sd};
+    return stats;
 }
 
 int main(int argc, char** argv){
     /* Setup code -- e.g., CPU pinning, disabling features, etc. */
-    int numberOfRuns = argc > 2 ? atoi(argv[2]) : 10000;
-    int runtimeArray[numberOfRuns];
+    int runs = argc > 1 ? atoi(argv[1]) : 1000;
+    printRuntimeStats(timingOverhead(runs));
+    printRuntimeStats(timingHarness(emptyFunction, runs));
 
-    // Warm-up phase to stabilize CPU state.
-    for (int i = 0; i < numberOfRuns/10; i++) {
-        measureFunction(emptyFunction);
-    }
-    for (int i = 0; i < numberOfRuns; i++) {
-        runtimeArray[i] = measureFunction(emptyFunction);
-    }
-    double mean = int_stats_mean(runtimeArray, numberOfRuns);
-    double sd = int_stats_sd(runtimeArray, numberOfRuns);
-    printf("Average cycles: %f\n", mean);
-    printf("Standard deviation: %f\n", sd);
     /* Running microbenchmarks and generating results. */
 }
