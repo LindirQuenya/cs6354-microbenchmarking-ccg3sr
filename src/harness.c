@@ -95,7 +95,7 @@ struct runtime_stats timingHarness(void (*func)(), int runs) {
 }
 
 void storeResults(struct runtime_stats stats, const char* benchmarkName) {
-    FILE* file = fopen("../src/results.csv", "a");
+    FILE* file = fopen("results.csv", "a");
     if (file == NULL) {
         perror("Failed to open file for writing");
         return;
