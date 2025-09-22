@@ -69,7 +69,7 @@ void storeResults(struct runtime_stats stats, const char* benchmarkName) {
         perror("Failed to open file for writing");
         return;
     }
-    fprintf(file, "%s,%f,%f,%f\n", benchmarkName, stats.mean, stats.median, stats.sd);
+    fprintf(file, "%s,%f,%f,%f,%zu\n", benchmarkName, stats.mean, stats.median, stats.sd, stats.n_samples);
     fclose(file);
 }
 

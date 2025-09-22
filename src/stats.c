@@ -7,12 +7,14 @@
 #include "stats.h"
 
 void printRuntimeStats(struct runtime_stats stats) {
-    printf("Mean: %f, Median: %f, SD: %f\n", stats.mean, stats.median, stats.sd);
+    printf("Mean: %f, Median: %f, SD: %f, n: %zu\n", stats.mean, stats.median, stats.sd, stats.n_samples);
 }
 
 void printCalibrated(calibrated_stats stats) {
-    printf("Measurement: Mean: %f, Median: %f, SD: %f\n", stats.measurement.mean, stats.measurement.median, stats.measurement.sd);
-    printf("Calibration: Mean: %f, Median: %f, SD: %f\n", stats.calibration.mean, stats.calibration.median, stats.calibration.sd);
+    printf("Measurement: ");
+    printRuntimeStats(stats.measurement);
+    printf("Calibration: ");
+    printRuntimeStats(stats.calibration);
     printf("Difference:  Mean: %f, Median: %f.\n", stats.measurement.mean - stats.calibration.mean, stats.measurement.median - stats.calibration.median);
 }
 
@@ -53,7 +55,8 @@ struct runtime_stats int_stats(const int * data, size_t n) {
     struct runtime_stats s = {
         int_stats_mean(data, n),
         int_stats_median(data, n),
-        int_stats_sd(data, n)
+        int_stats_sd(data, n),
+        n
     };
     return s;
 }
