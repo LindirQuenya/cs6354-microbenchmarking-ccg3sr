@@ -102,7 +102,7 @@ int main(int argc, char** argv){
     printRuntimeStats(stats);
     storeResults(stats, "timingHarness");
 
-    calibrated_stats context_switch = contextswitch_setup(runs/1000);
+    calibrated_stats context_switch = contextswitch_thread(runs/1000);
     storeResults(context_switch.calibration, "02Calibration");
     storeResults(context_switch.measurement, "02Measurement");
     printf("\nContext switch: (%d runs)\n", runs/1000);
