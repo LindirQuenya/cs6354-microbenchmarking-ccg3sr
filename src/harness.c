@@ -6,62 +6,12 @@
 #include <x86intrin.h>
 #include <emmintrin.h>
 #include <pthread.h>
+#include <string.h>
 
 #include "stats.h"
 #include "00_function_call.h"
 #include "01_context_switch.h"
 
-int measureNothing() {
-    unsigned long long start, end;
-    unsigned int tsc_aux;
-    start = __rdtscp(&tsc_aux);
-    _mm_lfence();
-    end = __rdtscp(&tsc_aux);
-    _mm_lfence();
-    return end - start;
-}
-
-int measureFunction(void (*func)()) {
-    unsigned long long start, end;
-    unsigned int tsc_aux;
-    start = __rdtscp(&tsc_aux);
-    _mm_lfence();
-    func();
-    end = __rdtscp(&tsc_aux);
-    _mm_lfence();
-    return end - start;
-}
-
-struct runtime_stats timingOverhead(int runs) {
-    int *runtimeArray = malloc(sizeof(int) * runs);
-
-    // Warm-up phase to stabilize CPU state.
-    for (int i = 0; i < runs/10; i++) {
-        measureNothing();
-    }
-    for (int i = 0; i < runs; i++) {
-        runtimeArray[i] = measureNothing();
-;
-    }
-    struct runtime_stats stats = int_stats(runtimeArray, runs);
-    free(runtimeArray);
-    return stats;
-}
-
-struct runtime_stats timingHarness(void (*func)(), int runs) {
-    int *runtimeArray = malloc(sizeof(int) * runs);
-
-    // Warm-up phase to stabilize CPU state.
-    for (int i = 0; i < runs/10; i++) {
-        measureFunction(func);
-    }
-    for (int i = 0; i < runs; i++) {
-        runtimeArray[i] = measureFunction(func);
-    }
-    struct runtime_stats stats = int_stats(runtimeArray, runs);
-    free(runtimeArray);
-    return stats;
-}
 
 void storeResults(struct runtime_stats stats, const char* benchmarkName) {
     FILE* file = fopen("results.csv", "a");
@@ -93,14 +43,19 @@ int main(int argc, char** argv){
     int runs = argc > 1 ? atoi(argv[1]) : 1000;
 
     /* Running microbenchmarks and generating results. */
-    struct runtime_stats stats;
-    stats = timingOverhead(runs);
-    printRuntimeStats(stats);
-    storeResults(stats, "00FunctionCall");
-
-    stats = timingHarness(function_call_v_v, runs);
-    printRuntimeStats(stats);
-    storeResults(stats, "00Calibration");
+    functioncall_results f = functioncall_measure_all(runs);
+    storeResults(f.calibration, "00Calibration");
+    storeResults(f.i_v, "00Fn_i_v");
+    char *fncall_fmt = "00Fn_v_i%d";
+    // Add four just in case. I don't think we'll need any: the two from the %d should be plenty.
+    int fncall_label_len = strlen(fncall_fmt) + 4;
+    char *fncall_label = malloc(sizeof(char) * fncall_label_len);
+    for (int i = 0; i <= FNCALL_INT_ARGS_MAX; i++) {
+        snprintf(fncall_label, fncall_label_len, fncall_fmt, i);
+        storeResults(f.v_iN[i], fncall_label);
+        printf("%s: ", fncall_label);
+        printRuntimeStats(f.v_iN[i]);
+    }
 
     calibrated_stats syscall = contextswitch_syscall(runs);
     storeResults(syscall.calibration, "01SyscallCalibration");

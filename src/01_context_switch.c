@@ -26,7 +26,7 @@ calibrated_stats contextswitch_syscall(int iterations) {
 	for (int i = 0; i < iterations; i++) {
 		start = __rdtscp(&tsc_aux);
 		_mm_lfence();
-		function_call_i_v();
+		function_i_v();
 		end = __rdtscp(&tsc_aux);
 		_mm_lfence();
 		times_calib[i] = end - start;
