@@ -64,12 +64,12 @@ struct runtime_stats timingHarness(void (*func)(), int runs) {
 }
 
 void storeResults(struct runtime_stats stats, const char* benchmarkName) {
-    FILE* file = fopen("../src/results.csv", "a");
+    FILE* file = fopen("results.csv", "a");
     if (file == NULL) {
         perror("Failed to open file for writing");
         return;
     }
-    fprintf(file, "%s,%f,%f\n", benchmarkName, stats.mean, stats.sd);
+    fprintf(file, "%s,%f,%f,%f\n", benchmarkName, stats.mean, stats.median, stats.sd);
     fclose(file);
 }
 
