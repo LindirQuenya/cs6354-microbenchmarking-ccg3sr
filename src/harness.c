@@ -96,16 +96,22 @@ int main(int argc, char** argv){
     struct runtime_stats stats;
     stats = timingOverhead(runs);
     printRuntimeStats(stats);
-    storeResults(stats, "timingOverhead");
+    storeResults(stats, "00FunctionCall");
 
     stats = timingHarness(function_call_v_v, runs);
     printRuntimeStats(stats);
-    storeResults(stats, "timingHarness");
+    storeResults(stats, "00Calibration");
+
+    calibrated_stats syscall = contextswitch_syscall(runs);
+    storeResults(syscall.calibration, "01SyscallCalibration");
+    storeResults(syscall.measurement, "01SyscallMeasurement");
+    printf("\nSyscall: (%d runs)\n", runs);
+    printCalibrated(syscall);
 
     calibrated_stats context_switch = contextswitch_thread(runs/1000);
-    storeResults(context_switch.calibration, "02Calibration");
-    storeResults(context_switch.measurement, "02Measurement");
-    printf("\nContext switch: (%d runs)\n", runs/1000);
+    storeResults(context_switch.calibration, "01ThreadCalibration");
+    storeResults(context_switch.measurement, "01ThreadMeasurement");
+    printf("\nThread switch: (%d runs)\n", runs/1000);
     printCalibrated(context_switch);
 
     return 0;
