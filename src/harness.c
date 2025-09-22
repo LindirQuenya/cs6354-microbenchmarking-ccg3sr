@@ -5,45 +5,18 @@
 #include <stdlib.h>
 #include <x86intrin.h>
 #include <emmintrin.h>
-#include <math.h>
 #include <pthread.h>
 
+#include "stats.h"
 #include "00_function_call.h"
-
-struct runtime_stats {
-    double mean;
-    double sd;
-};
-
-void printRuntimeStats(struct runtime_stats stats) {
-    printf("Mean: %f, SD: %f\n", stats.mean, stats.sd);
-}
-
-double int_stats_mean(const int data[], const size_t n) {
-    double sum = 0.0;
-    for (size_t i = 0; i < n; i++) {
-        sum += data[i];
-    }
-    return sum / n;
-}
-
-double int_stats_sd(const int data[], const size_t n) {
-    double mean = int_stats_mean(data, n);
-    double sum_sq_diff = 0.0;
-    for (size_t i = 0; i < n; i++) {
-        double diff = data[i] - mean;
-        sum_sq_diff += diff * diff;
-    }
-    return sqrt(sum_sq_diff / n);
-}
+#include "01_context_switch.h"
 
 int measureNothing() {
     unsigned long long start, end;
+    unsigned int tsc_aux;
+    start = __rdtscp(&tsc_aux);
     _mm_lfence();
-    start = __rdtsc();
-    _mm_lfence();
-    _mm_lfence();
-    end = __rdtsc();
+    end = __rdtscp(&tsc_aux);
     _mm_lfence();
     return end - start;
 }
@@ -70,10 +43,8 @@ struct runtime_stats timingOverhead(int runs) {
         runtimeArray[i] = measureNothing();
 ;
     }
-    double mean = int_stats_mean(runtimeArray, runs);
-    double sd = int_stats_sd(runtimeArray, runs);
+    struct runtime_stats stats = int_stats(runtimeArray, runs);
     free(runtimeArray);
-    struct runtime_stats stats = {mean, sd};
     return stats;
 }
 
@@ -87,10 +58,8 @@ struct runtime_stats timingHarness(void (*func)(), int runs) {
     for (int i = 0; i < runs; i++) {
         runtimeArray[i] = measureFunction(func);
     }
-    double mean = int_stats_mean(runtimeArray, runs);
-    double sd = int_stats_sd(runtimeArray, runs);
+    struct runtime_stats stats = int_stats(runtimeArray, runs);
     free(runtimeArray);
-    struct runtime_stats stats = {mean, sd};
     return stats;
 }
 
@@ -100,7 +69,7 @@ void storeResults(struct runtime_stats stats, const char* benchmarkName) {
         perror("Failed to open file for writing");
         return;
     }
-    fprintf(file, "%s,%f,%f\n", benchmarkName, stats.mean, stats.sd);
+    fprintf(file, "%s,%f,%f,%f\n", benchmarkName, stats.mean, stats.median, stats.sd);
     fclose(file);
 }
 
@@ -110,7 +79,7 @@ int main(int argc, char** argv){
     pthread_t thisThread = pthread_self();
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
-    CPU_SET(1, &cpuset);
+    CPU_SET(3, &cpuset);
     int s = pthread_setaffinity_np(thisThread, sizeof(cpuset), &cpuset);
     if (s != 0) {
         err(EXIT_FAILURE, "code: %d from pthread_setaffinity_np", s);
@@ -132,5 +101,12 @@ int main(int argc, char** argv){
     stats = timingHarness(function_call_v_v, runs);
     printRuntimeStats(stats);
     storeResults(stats, "timingHarness");
+
+    calibrated_stats context_switch = contextswitch_setup(runs/1000);
+    storeResults(context_switch.calibration, "02Calibration");
+    storeResults(context_switch.measurement, "02Measurement");
+    printf("\nContext switch: (%d runs)\n", runs/1000);
+    printCalibrated(context_switch);
+
     return 0;
 }

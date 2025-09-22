@@ -1,7 +1,0 @@
-TestName,Mean,StdDev
-timingOverhead,33.560276,20.111894
-timingHarness,47.983030,20.133140
-timingOverhead,33.576811,20.112068
-timingHarness,48.009661,25.385979
-timingOverhead,33.530631,15.260940
-timingHarness,48.005609,31.884180
