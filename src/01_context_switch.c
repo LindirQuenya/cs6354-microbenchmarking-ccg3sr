@@ -11,6 +11,8 @@
 
 
 calibrated_stats contextswitch_syscall(int iterations) {
+	int n_extra = iterations / 10;
+	iterations += n_extra;
 	int *times = malloc(sizeof(int) * iterations);
 	int *times_calib = malloc(sizeof(int) * iterations);
 	long long start, end;
@@ -32,11 +34,10 @@ calibrated_stats contextswitch_syscall(int iterations) {
 		times_calib[i] = end - start;
 	}
 	// Skip the first 10th of the tests as "warmup"
-	int n_skip = iterations/10;
-	int n_valid_test = iterations - n_skip;
+	int n_valid_test = iterations - n_extra;
 	calibrated_stats s = {
-		int_stats(times_calib + n_skip, n_valid_test),
-		int_stats(times + n_skip, n_valid_test)
+		int_stats(times_calib + n_extra, n_valid_test),
+		int_stats(times + n_extra, n_valid_test)
 	};
 
 	free(times);
@@ -57,9 +58,10 @@ static long long *starts;
 static long long *ends;
 
 
-
 calibrated_stats contextswitch_thread(int iterations) {
-	n_test = iterations;
+	// Skip the first 10th of the tests as "warmup"
+	int n_extra = iterations/10;
+	n_test = iterations + n_extra;
 	// Setup the semaphore for inter-thread (but not inter-process) sharing
 	sem_init(&sem, 0, 0);
 	pthread_barrier_init(&barrier, NULL, 2);
@@ -91,12 +93,10 @@ calibrated_stats contextswitch_thread(int iterations) {
 
 	contextswitch_pingpong(times_calib);
 
-	// Skip the first 10th of the tests as "warmup"
-	int n_skip = n_test/10;
-	int n_valid_test = n_test - n_skip;
+	int n_valid_test = n_test - n_extra;
 	calibrated_stats s = {
-		int_stats(times_calib + n_skip, n_valid_test),
-		int_stats(times + n_skip, n_valid_test)
+		int_stats(times_calib + n_extra, n_valid_test),
+		int_stats(times + n_extra, n_valid_test)
 	};
 
 	free(times);
