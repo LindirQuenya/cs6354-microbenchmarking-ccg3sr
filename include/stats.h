@@ -7,6 +7,7 @@ struct runtime_stats {
     double mean;
     double median;
     double sd;
+    size_t n_samples;
 };
 
 typedef struct {
