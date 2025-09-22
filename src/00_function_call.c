@@ -6,7 +6,7 @@
 #include "stats.h"
 #include "util.h"
 
-#define FUNCTION_DEF(SPEC, RTYPE, RET, ...) __attribute__((optimize("no-ipa-cp"))) __attribute__((__used__)) __attribute_noinline__ RTYPE function_ ## SPEC (__VA_ARGS__) { \
+#define FUNCTION_DEF(SPEC, RTYPE, RET, ...) __attribute__((optimize("no-ipa-cp"))) __attribute_noinline__ RTYPE function_ ## SPEC (__VA_ARGS__) { \
 	asm (""); \
 	return RET; \
 }
