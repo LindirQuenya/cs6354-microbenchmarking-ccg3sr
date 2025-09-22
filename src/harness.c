@@ -46,6 +46,9 @@ int main(int argc, char** argv){
     functioncall_results f = functioncall_measure_all(runs);
     storeResults(f.calibration, "00Calibration");
     storeResults(f.i_v, "00Fn_i_v");
+    calibrated_stats c = {f.calibration, f.i_v};
+    printf("00Fn_i_v:\n");
+    printCalibrated(c);
     char *fncall_fmt = "00Fn_v_i%d";
     // Add four just in case. I don't think we'll need any: the two from the %d should be plenty.
     int fncall_label_len = strlen(fncall_fmt) + 4;
