@@ -2,3 +2,4 @@ build
 # Ignore nano lock files
 *.swp
 .cache
+*.csv
