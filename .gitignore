@@ -3,3 +3,5 @@ build
 *.swp
 .cache
 *.csv
+venv
+.ipynb_checkpoints
