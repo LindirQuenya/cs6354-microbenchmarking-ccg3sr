@@ -81,7 +81,7 @@ FUNCTIONCALL_MEASURE(v_i9, JOIN(9, 0))
 FUNCTIONCALL_MEASURE(v_i10, JOIN(10, 0))
 
 struct runtime_stats functioncall_measure_multi(int (*func)(void), int runs) {
-    int *runtimeArray = malloc(sizeof(int) * runs);
+    int *runtimeArray = calloc(runs, sizeof(int));
 
     // Warm-up phase to stabilize CPU state.
     for (int i = 0; i < runs/10; i++) {
