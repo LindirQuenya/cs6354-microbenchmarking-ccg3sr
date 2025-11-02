@@ -11,6 +11,7 @@
 #include "stats.h"
 #include "00_function_call.h"
 #include "01_context_switch.h"
+#include "02_fetch_throughput.h"
 
 
 void storeResults(struct runtime_stats stats, const char* benchmarkName) {
@@ -71,6 +72,12 @@ int main(int argc, char** argv){
     storeResults(context_switch.measurement, "01ThreadMeasurement");
     printf("\nThread switch: (%d runs)\n", runs/1000);
     printCalibrated(context_switch);
+
+    calibrated_stats fetchthroughput = fetch_throughput(runs);
+    storeResults(fetchthroughput.calibration, "02FetchCalibration_10k");
+    storeResults(fetchthroughput.measurement, "02FetchMeasurement_20k");
+    printf("\nFetch Throughput: (%d runs)\n", runs);
+    printCalibrated(fetchthroughput);
 
     return 0;
 }
