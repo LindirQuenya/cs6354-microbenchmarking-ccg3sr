@@ -73,12 +73,18 @@ int main(int argc, char** argv){
     printf("\nThread switch: (%d runs)\n", runs/1000);
     printCalibrated(context_switch);
 
-    calibrated_stats fetchthroughput = fetch_throughput(runs/100);
-    storeResults(fetchthroughput.calibration, "02FetchCalibration_10k");
-    storeResults(fetchthroughput.measurement, "02FetchMeasurement_20k");
-    printf("\nFetch Throughput: (%d runs)\n", runs/100);
-    printCalibrated(fetchthroughput);
-    printf("Instr fetched per cycle: %f\n", 10.0 / ((FETCH_LOOPS_MEASUREMENT - FETCH_LOOPS_CALIBRATION) * (fetchthroughput.measurement.median - fetchthroughput.calibration.median)));
+    calibrated_stats fetchthroughput8 = fetch_throughput8(runs/10);
+    storeResults(fetchthroughput8.calibration, "02FetchCalibration8_10k");
+    storeResults(fetchthroughput8.measurement, "02FetchMeasurement8_20k");
+    printf("\nFetch Throughput (8 nops): (%d runs)\n", runs/10);
+    printCalibrated(fetchthroughput8);
+    printf("Instr fetched per cycle (8 nops): %f\n", (FETCH_LOOPS_MEASUREMENT - FETCH_LOOPS_CALIBRATION) * 10.0 / (fetchthroughput8.measurement.median - fetchthroughput8.calibration.median));
+    calibrated_stats fetchthroughput16 = fetch_throughput16(runs/10);
+    storeResults(fetchthroughput16.calibration, "02FetchCalibration16_10k");
+    storeResults(fetchthroughput16.measurement, "02FetchMeasurement16_20k");
+    printf("\nFetch Throughput (16 nops): (%d runs)\n", runs/10);
+    printCalibrated(fetchthroughput16);
+    printf("Instr fetched per cycle (16 nops): %f\n", (FETCH_LOOPS_MEASUREMENT - FETCH_LOOPS_CALIBRATION) * 10.0 / (fetchthroughput16.measurement.median - fetchthroughput16.calibration.median));
 
     return 0;
 }

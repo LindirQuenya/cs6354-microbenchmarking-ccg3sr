@@ -6,7 +6,8 @@
 #define FETCH_LOOPS_CALIBRATION 10000
 #define FETCH_LOOPS_MEASUREMENT 20000
 
-calibrated_stats fetch_throughput(int iterations);
+calibrated_stats fetch_throughput8(int iterations);
+calibrated_stats fetch_throughput16(int iterations);
 
 
 #endif
