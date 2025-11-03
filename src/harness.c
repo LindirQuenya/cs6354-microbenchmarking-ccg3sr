@@ -84,7 +84,7 @@ int main(int argc, char** argv){
     storeResults(fetchthroughput16.measurement, "02FetchMeasurement16_20k");
     printf("\nFetch Throughput (16 nops): (%d runs)\n", runs/10);
     printCalibrated(fetchthroughput16);
-    printf("Instr fetched per cycle (16 nops): %f\n", (FETCH_LOOPS_MEASUREMENT - FETCH_LOOPS_CALIBRATION) * 10.0 / (fetchthroughput16.measurement.median - fetchthroughput16.calibration.median));
+    printf("Instr fetched per cycle (16 nops): %f\n", (FETCH_LOOPS_MEASUREMENT - FETCH_LOOPS_CALIBRATION) * 18.0 / (fetchthroughput16.measurement.median - fetchthroughput16.calibration.median));
 
     return 0;
 }
