@@ -61,3 +61,10 @@ struct runtime_stats int_stats(const int * data, size_t n) {
     return s;
 }
 
+calibrated_stats calibrated_int_stats(const int * measurement, const int * calibration, size_t n) {
+    calibrated_stats s = {
+        .calibration = int_stats(calibration, n),
+        .measurement = int_stats(measurement, n)
+    };
+    return s;
+}
