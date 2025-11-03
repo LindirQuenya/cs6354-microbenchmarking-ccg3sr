@@ -4,7 +4,8 @@
 #include "02_fetch_throughput.h"
 #include "stats.h"
 
-calibrated_stats fetch_throughput(int iterations) {
+// In optimized form, each loop has 10 instructions.
+ __attribute__((optimize("no-unroll-loops"))) calibrated_stats fetch_throughput(int iterations) {
 	long long start, end;
 	unsigned int tsc_aux;
 	int *times = malloc(sizeof(int) * iterations);

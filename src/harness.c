@@ -73,11 +73,12 @@ int main(int argc, char** argv){
     printf("\nThread switch: (%d runs)\n", runs/1000);
     printCalibrated(context_switch);
 
-    calibrated_stats fetchthroughput = fetch_throughput(runs);
+    calibrated_stats fetchthroughput = fetch_throughput(runs/100);
     storeResults(fetchthroughput.calibration, "02FetchCalibration_10k");
     storeResults(fetchthroughput.measurement, "02FetchMeasurement_20k");
-    printf("\nFetch Throughput: (%d runs)\n", runs);
+    printf("\nFetch Throughput: (%d runs)\n", runs/100);
     printCalibrated(fetchthroughput);
+    printf("Instr fetched per cycle: %f\n", 10.0 / ((FETCH_LOOPS_MEASUREMENT - FETCH_LOOPS_CALIBRATION) * (fetchthroughput.measurement.median - fetchthroughput.calibration.median)));
 
     return 0;
 }
