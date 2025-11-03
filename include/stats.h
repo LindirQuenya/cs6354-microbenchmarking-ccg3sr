@@ -17,7 +17,8 @@ typedef struct {
 
 void printRuntimeStats(struct runtime_stats stats);
 void printCalibrated(calibrated_stats stats);
-struct runtime_stats int_stats(const int * data, size_t n);
-calibrated_stats calibrated_int_stats(const int * measurement, const int * calibration, size_t n);
+struct runtime_stats int_stats(const int *data, size_t n);
+calibrated_stats calibrated_int_stats(const int *measurement,
+                                      const int *calibration, size_t n);
 
 #endif

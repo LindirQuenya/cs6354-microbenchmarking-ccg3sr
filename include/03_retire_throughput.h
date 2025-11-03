@@ -7,8 +7,8 @@
 #define RETIRE_LOOPS_MEASUREMENT 20000
 
 typedef struct {
-	calibrated_stats lowILP;
-	calibrated_stats highILP;
+    calibrated_stats lowILP;
+    calibrated_stats highILP;
 } retire_stats;
 
 retire_stats retire_throughput(int iterations);

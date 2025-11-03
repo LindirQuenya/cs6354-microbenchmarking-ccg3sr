@@ -9,5 +9,4 @@
 calibrated_stats fetch_throughput8(int iterations);
 calibrated_stats fetch_throughput16(int iterations);
 
-
 #endif

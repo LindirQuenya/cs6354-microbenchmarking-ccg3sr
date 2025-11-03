@@ -7,9 +7,9 @@
 #define EXECUNIT_LOOPS_MEASUREMENT 20000
 
 typedef struct {
-	calibrated_stats iadd;
-	calibrated_stats imul;
-	calibrated_stats idiv;
+    calibrated_stats iadd;
+    calibrated_stats imul;
+    calibrated_stats idiv;
 } exec_unit_stats;
 
 exec_unit_stats execunit_throughput(int iterations);
