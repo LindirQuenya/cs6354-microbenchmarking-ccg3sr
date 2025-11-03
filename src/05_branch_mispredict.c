@@ -23,9 +23,7 @@ calibrated_stats mispredict(int iterations) {
 		times[i] = measure_branches(100, 99);
 		times_calib[i] = measure_branches(100, 0);
 	}
-	calibrated_stats s = {
-		.calibration = int_stats(times_calib, iterations),
-		.measurement = int_stats(times, iterations)
-	};
+	calibrated_stats s = calibrated_int_stats(times, times_calib, iterations);
+	free(times); free(times_calib);
 	return s;
 }

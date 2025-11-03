@@ -5,9 +5,10 @@
 #include "04_load_store_throughput.h"
 #include "stats.h"
 #include "util.h"
+#include "opt.h"
 
-// 10 instructions per iteration, ish.
-long loop_load8(int count) {
+// 11 instructions per iteration, ish.
+NOINLINE_NOUNROLL long loop_load8(int count) {
 	long long start, end;
 	unsigned int tsc_aux;
 	volatile int temp = 0;
@@ -22,8 +23,8 @@ long loop_load8(int count) {
 	return end - start;
 }
 
-// 18 instructions per iteration, ish.
-long loop_load16(int count) {
+// 19 instructions per iteration, ish.
+NOINLINE_NOUNROLL long loop_load16(int count) {
 	long long start, end;
 	unsigned int tsc_aux;
 	volatile int temp = 0;
@@ -38,7 +39,7 @@ long loop_load16(int count) {
 	return end - start;
 }
 
-long loop_store8(int count) {
+NOINLINE_NOUNROLL long loop_store8(int count) {
 	long long start, end;
 	unsigned int tsc_aux;
 	volatile int temp = 0;
@@ -48,12 +49,13 @@ long loop_store8(int count) {
 	for (int i = 0; i < count; i++) {
 		REP8(temp = reg;)
 	}
+	_mm_mfence();
 	end = __rdtscp(&tsc_aux);
 	_mm_lfence();
 	return end - start;
 }
 
-long loop_store16(int count) {
+NOINLINE_NOUNROLL long loop_store16(int count) {
 	long long start, end;
 	unsigned int tsc_aux;
 	volatile int temp = 0;
@@ -63,6 +65,7 @@ long loop_store16(int count) {
 	for (int i = 0; i < count; i++) {
 		REP(0, 1, 6, temp = reg;)
 	}
+	_mm_mfence();
 	end = __rdtscp(&tsc_aux);
 	_mm_lfence();
 	return end - start;
@@ -97,6 +100,8 @@ load_store_stats loadstore_throughput(int iterations) {
 		times[i] = loop_store16(LOADSTORE_LOOPS_MEASUREMENT);
 	}
 	s.store16 = calibrated_int_stats(times, times_calib, iterations);
+
+	free(times); free(times_calib);
 
 	return s;
 }
