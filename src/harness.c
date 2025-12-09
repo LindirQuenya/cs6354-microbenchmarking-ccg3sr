@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
     printf("\nL/S Throughput (8 loads): (%d runs)\n", runs / 10);
     printCalibrated(loadstore.load8);
     printf("L/S per cycle (8 loads): %f\n",
-           (LOADSTORE_LOOPS_MEASUREMENT - LOADSTORE_LOOPS_CALIBRATION) * 11.0 /
+           (LOADSTORE_LOOPS_MEASUREMENT - LOADSTORE_LOOPS_CALIBRATION) * 8.0 /
                (loadstore.load8.measurement.median -
                 loadstore.load8.calibration.median));
     storeResults(loadstore.load16.calibration, "04LoadCalibration16_10k");
@@ -123,7 +123,7 @@ int main(int argc, char **argv) {
     printf("\nL/S Throughput (16 loads): (%d runs)\n", runs / 10);
     printCalibrated(loadstore.load16);
     printf("L/S per cycle (16 loads): %f\n",
-           (LOADSTORE_LOOPS_MEASUREMENT - LOADSTORE_LOOPS_CALIBRATION) * 19.0 /
+           (LOADSTORE_LOOPS_MEASUREMENT - LOADSTORE_LOOPS_CALIBRATION) * 16.0 /
                (loadstore.load16.measurement.median -
                 loadstore.load16.calibration.median));
     storeResults(loadstore.store8.calibration, "04StoreCalibration8_10k");
@@ -131,7 +131,7 @@ int main(int argc, char **argv) {
     printf("\nL/S Throughput (8 stores): (%d runs)\n", runs / 10);
     printCalibrated(loadstore.store8);
     printf("L/S per cycle (8 stores): %f\n",
-           (LOADSTORE_LOOPS_MEASUREMENT - LOADSTORE_LOOPS_CALIBRATION) * 11.0 /
+           (LOADSTORE_LOOPS_MEASUREMENT - LOADSTORE_LOOPS_CALIBRATION) * 8.0 /
                (loadstore.store8.measurement.median -
                 loadstore.store8.calibration.median));
     storeResults(loadstore.store16.calibration, "04StoreCalibration16_10k");
@@ -139,7 +139,7 @@ int main(int argc, char **argv) {
     printf("\nL/S Throughput (16 stores): (%d runs)\n", runs / 10);
     printCalibrated(loadstore.store16);
     printf("L/S per cycle (16 stores): %f\n",
-           (LOADSTORE_LOOPS_MEASUREMENT - LOADSTORE_LOOPS_CALIBRATION) * 19.0 /
+           (LOADSTORE_LOOPS_MEASUREMENT - LOADSTORE_LOOPS_CALIBRATION) * 16.0 /
                (loadstore.store16.measurement.median -
                 loadstore.store16.calibration.median));
 
@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
     printf("\nInteger Add Throughput: (%d runs)\n", runs / 10);
     printCalibrated(execunit.iadd);
     printf("Adds per cycle (8 adds): %f\n",
-           (EXECUNIT_LOOPS_MEASUREMENT - EXECUNIT_LOOPS_CALIBRATION) * 11.0 /
+           (EXECUNIT_LOOPS_MEASUREMENT - EXECUNIT_LOOPS_CALIBRATION) * 8.0 /
                (execunit.iadd.measurement.median -
                 execunit.iadd.calibration.median));
     storeResults(execunit.imul.calibration, "06ExecMulCalibration_10k");
@@ -163,7 +163,7 @@ int main(int argc, char **argv) {
     printf("\nInteger Mul Throughput: (%d runs)\n", runs / 10);
     printCalibrated(execunit.imul);
     printf("Muls per cycle (8 muls): %f\n",
-           (EXECUNIT_LOOPS_MEASUREMENT - EXECUNIT_LOOPS_CALIBRATION) * 11.0 /
+           (EXECUNIT_LOOPS_MEASUREMENT - EXECUNIT_LOOPS_CALIBRATION) * 8.0 /
                (execunit.imul.measurement.median -
                 execunit.imul.calibration.median));
     storeResults(execunit.idiv.calibration, "06ExecDivCalibration_10k");
@@ -171,7 +171,7 @@ int main(int argc, char **argv) {
     printf("\nInteger Div Throughput: (%d runs)\n", runs / 10);
     printCalibrated(execunit.idiv);
     printf("Divs per cycle (8 divs): %f\n",
-           (EXECUNIT_LOOPS_MEASUREMENT - EXECUNIT_LOOPS_CALIBRATION) * 21.0 /
+           (EXECUNIT_LOOPS_MEASUREMENT - EXECUNIT_LOOPS_CALIBRATION) * 8.0 /
                (execunit.idiv.measurement.median -
                 execunit.idiv.calibration.median));
 
