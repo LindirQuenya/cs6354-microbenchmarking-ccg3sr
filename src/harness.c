@@ -19,6 +19,7 @@
 #include "07_cache_latency.h"
 #include "08_cache_bandwidth.h"
 #include "09_dram_latency.h"
+#include "10_dram_bandwidth.h"
 
 void storeResults(struct runtime_stats stats, const char *benchmarkName) {
     FILE *file = fopen("results.csv", "a");
@@ -207,5 +208,9 @@ int main(int argc, char **argv) {
     cache_bandwidth_stats cachebw = cache_bandwidth(runs / 1000);
     storeResults_08(cachebw);
     displayResults_08(cachebw);
+
+    dram_bandwidth_stats drambw = dram_bandwidth(runs / 10000);
+    storeResults_10(drambw);
+    displayResults_10(drambw);
     return 0;
 }

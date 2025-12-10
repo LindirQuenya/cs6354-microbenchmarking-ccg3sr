@@ -58,11 +58,12 @@ struct runtime_stats int_stats(const int *data, size_t n) {
     int *temp = malloc(sizeof(int) * n);
     memcpy(temp, data, sizeof(int) * n);
     qsort(temp, n, sizeof(int), &compare_int);
-    // Remove the top 20% of measurements - they're almost certainly caused by interrupts.
+    // Remove the top 20% of measurements - they're almost certainly caused by
+    // interrupts.
     size_t new_n = (4 * n) / 5;
     struct runtime_stats s = {int_stats_mean(data, new_n),
-                              int_stats_median(data, n), int_stats_sd(data, new_n),
-                              new_n};
+                              int_stats_median(data, n),
+                              int_stats_sd(data, new_n), new_n};
     free(temp);
     return s;
 }

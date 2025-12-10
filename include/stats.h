@@ -15,6 +15,11 @@ typedef struct {
     struct runtime_stats measurement;
 } calibrated_stats;
 
+typedef struct {
+    calibrated_stats read;
+    calibrated_stats write;
+} stats_rw_pair;
+
 void printRuntimeStats(struct runtime_stats stats);
 void printCalibrated(calibrated_stats stats);
 struct runtime_stats int_stats(const int *data, size_t n);

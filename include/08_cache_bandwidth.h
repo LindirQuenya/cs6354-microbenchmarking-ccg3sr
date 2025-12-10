@@ -7,11 +7,6 @@
 #define CACHEBW_LOOPS_MEASUREMENT (16)
 
 typedef struct {
-    calibrated_stats read;
-    calibrated_stats write;
-} stats_rw_pair;
-
-typedef struct {
     // 4k
     stats_rw_pair l1d;
     // 64k

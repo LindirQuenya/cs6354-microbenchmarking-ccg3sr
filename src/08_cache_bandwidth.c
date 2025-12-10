@@ -9,9 +9,6 @@
 #include "cache.h"
 #include "harness.h"
 
-// If these aren't marked volatile the compiler optimizes out the cache-filling
-// operations.
-
 void setup_cachebw(void) {
     _mm_mfence();
     memset((void *)l1d_arr, 'a', L1d_CACHE_SIZE);
@@ -34,6 +31,7 @@ void setup_cachebw(void) {
 NOINLINE long measure_l1d_read(int count) {
     long long start, end;
     unsigned int tsc_aux;
+    unsigned char a;
     int i, j;
 
     // Pull the data into the L1d (warmup).
@@ -45,7 +43,9 @@ NOINLINE long measure_l1d_read(int count) {
 
     // Repeatedly read 4K from the L1d.
     for (j = 0; j < count; j++) {
-        for (i = 0; l1d_arr[i] != 0; i++);
+        for (i = 0; i < L1d_CACHE_SIZE / 4; i++) {
+            a = l1d_arr[i];
+        }
     }
 
     _mm_mfence();
@@ -58,6 +58,7 @@ NOINLINE long measure_l1d_read(int count) {
 NOINLINE long measure_l2_read(int count) {
     long long start, end;
     unsigned int tsc_aux;
+    unsigned char a;
     int i, j;
 
     // Pull the data into the L2 (warmup).
@@ -69,7 +70,9 @@ NOINLINE long measure_l2_read(int count) {
 
     // Repeatedly read 64K from the L2.
     for (j = 0; j < count; j++) {
-        for (i = 0; l2_arr[i] != 0; i++);
+        for (i = 0; i < L1d_CACHE_SIZE * 2; i++) {
+            a = l2_arr[i];
+        }
     }
 
     _mm_mfence();
@@ -82,6 +85,7 @@ NOINLINE long measure_l2_read(int count) {
 NOINLINE long measure_l3_read(int count) {
     long long start, end;
     unsigned int tsc_aux;
+    unsigned char a;
     int i, j;
 
     // Pull the data into the L3 (warmup).
@@ -93,7 +97,9 @@ NOINLINE long measure_l3_read(int count) {
 
     // Repeatedly read 512K from the L3.
     for (j = 0; j < count; j++) {
-        for (i = 0; l3_arr[i] != 0; i++);
+        for (i = 0; i < L2_CACHE_SIZE * 2; i++) {
+            a = l3_arr[i];
+        }
     }
 
     _mm_mfence();
