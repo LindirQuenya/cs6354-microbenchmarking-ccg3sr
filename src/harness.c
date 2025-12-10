@@ -1,4 +1,3 @@
-#include "11_smt_contention.h"
 #define _GNU_SOURCE
 #include <sched.h>
 #include <err.h>
@@ -21,6 +20,7 @@
 #include "08_cache_bandwidth.h"
 #include "09_dram_latency.h"
 #include "10_dram_bandwidth.h"
+#include "11_smt_contention.h"
 
 void storeResults(struct runtime_stats stats, const char *benchmarkName) {
     FILE *file = fopen("results.csv", "a");

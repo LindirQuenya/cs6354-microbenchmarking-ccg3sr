@@ -227,8 +227,8 @@ cache_bandwidth_stats cache_bandwidth(int iterations) {
     }
     s.l3.write = calibrated_int_stats(times, times_calib, iterations);
 
-	free(times);
-	free(times_calib);
+    free(times);
+    free(times_calib);
 
     return s;
 }

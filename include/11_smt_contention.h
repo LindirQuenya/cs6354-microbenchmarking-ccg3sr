@@ -4,8 +4,8 @@
 #include "stats.h"
 
 typedef struct {
-    struct runtime_stats competing;
-    struct runtime_stats complementary;
+    calibrated_stats competing;
+    calibrated_stats complementary;
 } smt_contention_stats;
 
 smt_contention_stats smt_contention(int iterations);

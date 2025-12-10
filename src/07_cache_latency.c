@@ -159,6 +159,6 @@ cache_latency_stats cache_latency(int iterations) {
 
     free(times);
     free(times_calib);
-    
+
     return s;
 }
