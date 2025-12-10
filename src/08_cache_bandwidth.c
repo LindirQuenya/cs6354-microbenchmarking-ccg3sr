@@ -32,7 +32,7 @@ void setup_cachebw(void) {
 NOINLINE long measure_l1d_read(int count) {
     long long start, end;
     unsigned int tsc_aux;
-    register __m256i a asm("ymm0") = (__m256i)_mm256_setzero_ps();
+    register __m256i ymm0 asm("ymm0") = (__m256i)_mm256_setzero_ps();
     int i, j;
 
     // Pull the data into the L1d (warmup).
@@ -46,11 +46,14 @@ NOINLINE long measure_l1d_read(int count) {
     for (j = 0; j < count; j++) {
         volatile __m256i *arr = (__m256i *)l1d_arr;
         for (i = 0; i < L1d_CACHE_SIZE / 8 / 32; i++) {
-            arr += 1;
+            // So, intrinsics didn't work out here. Turns out
+            // we need to write some assembly by hand if we want
+            // to avoid having the compiler optimize it away.
             asm volatile("vmovdqu %[dest_ymm], [%[source]]"
-                         : [dest_ymm] "=x"(a)
+                         : [dest_ymm] "=x"(ymm0)
                          : [source] "r"(arr)
                          : "memory");
+            arr += 1;
         }
     }
 
@@ -58,7 +61,6 @@ NOINLINE long measure_l1d_read(int count) {
     end = __rdtscp(&tsc_aux);
     _mm_lfence();
 
-    // _mm256_store_si256((__m256i*)l1d_arr, a);
     return end - start;
 }
 
@@ -120,6 +122,7 @@ NOINLINE long measure_l1d_write(int count) {
     long long start, end;
     unsigned int tsc_aux;
     int i, j;
+    register __m256i ymm0 asm("ymm0") = (__m256i)_mm256_setzero_ps();
 
     // Pull the data into the L1d (warmup).
     for (i = 0; l1d_arr[i] != 0; i++);
@@ -130,8 +133,13 @@ NOINLINE long measure_l1d_write(int count) {
 
     // Repeatedly write 4K to the L1d.
     for (j = 0; j < count; j++) {
-        for (i = 0; i < L1d_CACHE_SIZE / 8; i++) {
-            l1d_arr[i] = 'a';
+        volatile __m256i *arr = (__m256i *)l1d_arr;
+        for (i = 0; i < L1d_CACHE_SIZE / 8 / 32; i++) {
+            asm volatile("vmovdqa [%[dest]], %[src_ymm]"
+                         :
+                         : [src_ymm] "x"(ymm0), [dest] "r"(arr)
+                         : "memory");
+            arr += 1;
         }
     }
 
