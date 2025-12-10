@@ -5,20 +5,17 @@
 #include "07_cache_latency.h"
 #include "stats.h"
 #include "opt.h"
-
-#define LINE_SIZE      (64)
-#define L1d_CACHE_SIZE (32768)
-#define L2_CACHE_SIZE  (256 * 1024)
-#define L3_CACHE_SIZE  (8192 * 1024)
+#include "cache.h"
 
 // If these aren't marked volatile the compiler optimizes out the cache-filling
 // operations.
 volatile __attribute__((aligned(64))) unsigned char l1d_arr[L1d_CACHE_SIZE];
 volatile __attribute__((aligned(64))) unsigned char l2_arr[L2_CACHE_SIZE];
 
-volatile __attribute__((aligned(64))) unsigned char target_cacheline[LINE_SIZE];
+static volatile
+    __attribute__((aligned(64))) unsigned char target_cacheline[LINE_SIZE];
 
-void setup(void) {
+static void setup(void) {
     _mm_mfence();
     memset((void *)l1d_arr, 'a', L1d_CACHE_SIZE);
     l1d_arr[L1d_CACHE_SIZE - 1] = 0;
@@ -59,13 +56,17 @@ NOINLINE long measure_l1d(void) {
     register unsigned char target;
     // Load the target cache line into L1d,L2,L3.
     target_cacheline[0] = 'b';
+
     _mm_mfence();
     start = __rdtscp(&tsc_aux);
     _mm_lfence();
+
     target = target_cacheline[0];
+
     _mm_mfence();
     end = __rdtscp(&tsc_aux);
     _mm_lfence();
+
     // To avoid dead value elimination.
     target_cacheline[0] = target;
     return end - start;
@@ -76,14 +77,17 @@ NOINLINE long measure_datacache_calib(void) {
     unsigned int tsc_aux;
     // Load the target cache line into L1d,L2,L3.
     target_cacheline[0] = 'b';
+
     _mm_mfence();
     start = __rdtscp(&tsc_aux);
     _mm_lfence();
+
     // But don't actually do the memory operation.
-    // a = 3;
+
     _mm_mfence();
     end = __rdtscp(&tsc_aux);
     _mm_lfence();
+
     return end - start;
 }
 
@@ -95,13 +99,17 @@ NOINLINE long measure_l2(void) {
     target_cacheline[0] = 'b';
     // But now fill up L1d with a different array.
     for (int i = 0; l1d_arr[i] != 0; i++);
+
     _mm_mfence();
     start = __rdtscp(&tsc_aux);
     _mm_lfence();
+
     target = target_cacheline[0];
+
     _mm_mfence();
     end = __rdtscp(&tsc_aux);
     _mm_lfence();
+
     // To avoid dead value elimination.
     target_cacheline[0] = target;
     return end - start;
@@ -115,13 +123,17 @@ NOINLINE long measure_l3(void) {
     target_cacheline[0] = 'b';
     // But now fill up L2 (and thus also L1d) with a different array.
     for (int i = 0; l2_arr[i] != 0; i++);
+
     _mm_mfence();
     start = __rdtscp(&tsc_aux);
     _mm_lfence();
+
     target = target_cacheline[0];
+
     _mm_mfence();
     end = __rdtscp(&tsc_aux);
     _mm_lfence();
+
     // To avoid dead value elimination.
     target_cacheline[0] = target;
     return end - start;
