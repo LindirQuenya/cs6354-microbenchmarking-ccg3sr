@@ -52,9 +52,9 @@ typedef struct {
 } smt_args;
 
 void striding_mean(smt_args *arg) {
-    pthread_t thisThread = pthread_self();
-    pthread_setaffinity_np(thisThread, sizeof(arg->affinity), &(arg->affinity));
-    pthread_barrier_wait(&barrier);
+    // pthread_t thisThread = pthread_self();
+    // pthread_setaffinity_np(thisThread, sizeof(arg->affinity),
+    // &(arg->affinity)); pthread_barrier_wait(&barrier);
     int *arr = arg->arr;
     volatile int mean;
     for (int i = 0; i < arg->count; i++) {
@@ -62,7 +62,7 @@ void striding_mean(smt_args *arg) {
         long long sum = 0;
         for (int j = 0; j < L1d_NUM_SETS; j++) {
             if (!arg->first) {
-                pthread_barrier_wait(&barrier);
+                // pthread_barrier_wait(&barrier);
             }
             // index = j << 6
             // This selects a cache set for us. Now we
@@ -77,7 +77,7 @@ void striding_mean(smt_args *arg) {
                 }
             }
             if (arg->first) {
-                pthread_barrier_wait(&barrier);
+                // pthread_barrier_wait(&barrier);
             }
             jrand = lcg(jrand);
         }
