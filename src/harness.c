@@ -17,6 +17,7 @@
 #include "05_branch_mispredict.h"
 #include "06_exec_unit_throughput.h"
 #include "07_cache_latency.h"
+#include "09_dram_latency.h"
 
 void storeResults(struct runtime_stats stats, const char *benchmarkName) {
     FILE *file = fopen("results.csv", "a");
@@ -176,7 +177,7 @@ int main(int argc, char **argv) {
            (EXECUNIT_LOOPS_MEASUREMENT - EXECUNIT_LOOPS_CALIBRATION) * 8.0 /
                (execunit.idiv.measurement.median -
                 execunit.idiv.calibration.median));
-#endif
+
     cache_latency_stats cachelat = cache_latency(runs / 100);
     storeResults(cachelat.l1i.calibration, "07CacheLat_L1i_Calibration");
     storeResults(cachelat.l1i.measurement, "07CacheLat_L1i_Measurement");
@@ -195,5 +196,11 @@ int main(int argc, char **argv) {
     printf("\nL3 Latency: (%d runs)\n", runs / 100);
     printCalibrated(cachelat.l3);
 
+#endif
+    calibrated_stats dramlat = dram_latency(runs / 100);
+    storeResults(dramlat.calibration, "09DRAMLat_Calibration");
+    storeResults(dramlat.measurement, "09DRAMLat_Measurement");
+    printf("\nDRAM Latency: (%d runs)\n", runs / 100);
+    printCalibrated(dramlat);
     return 0;
 }
