@@ -154,6 +154,14 @@ smt_contention_stats smt_contention(int iterations) {
     return s;
 }
 
+void storeResults_11(smt_contention_stats stats) {
+    storeResults(stats.complementary.calibration,"11SMT_Complementary_Calibration");
+    storeResults(stats.complementary.measurement,"11SMT_Complementary_Measurement");
+
+    storeResults(stats.competing.calibration,"11SMT_Competing_Calibration");
+    storeResults(stats.competing.measurement,"11SMT_Competing_Measurement");
+}
+
 void displayResults_11(smt_contention_stats stats) {
     printf("\nSMT Complementary Runtime (%d-%d):\n", SMT_LOOPS_MEASUREMENT,
            SMT_LOOPS_CALIBRATION);
