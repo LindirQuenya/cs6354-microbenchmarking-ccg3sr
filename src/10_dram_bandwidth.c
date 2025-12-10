@@ -9,13 +9,12 @@
 #include "cache.h"
 #include "harness.h"
 
-unsigned char *dram_arr;
+volatile unsigned char *dram_arr;
 
 void setup_drambw(void) {
     _mm_mfence();
     dram_arr = malloc(L3_CACHE_SIZE * 4);
     memset(dram_arr, 'a', L3_CACHE_SIZE * 4);
-    dram_arr[L3_CACHE_SIZE * 4 - 1] = 0;
     __cpuid();
 }
 
