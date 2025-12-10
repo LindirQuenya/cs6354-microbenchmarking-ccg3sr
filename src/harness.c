@@ -177,22 +177,22 @@ int main(int argc, char **argv) {
                (execunit.idiv.measurement.median -
                 execunit.idiv.calibration.median));
 #endif
-    cache_latency_stats cachelat = cache_latency(runs / 10);
+    cache_latency_stats cachelat = cache_latency(runs / 100);
     storeResults(cachelat.l1i.calibration, "07CacheLat_L1i_Calibration");
     storeResults(cachelat.l1i.measurement, "07CacheLat_L1i_Measurement");
-    printf("\nL1i Latency: (%d runs)\n", runs / 10);
+    printf("\nL1i Latency: (%d runs)\n", runs / 100);
     printCalibrated(cachelat.l1i);
     storeResults(cachelat.l1d.calibration, "07CacheLat_L1d_Calibration");
     storeResults(cachelat.l1d.measurement, "07CacheLat_L1d_Measurement");
-    printf("\nL1d Latency: (%d runs)\n", runs / 10);
+    printf("\nL1d Latency: (%d runs)\n", runs / 100);
     printCalibrated(cachelat.l1d);
     storeResults(cachelat.l2.calibration, "07CacheLat_L2_Calibration");
     storeResults(cachelat.l2.measurement, "07CacheLat_L2_Measurement");
-    printf("\nL2 Latency: (%d runs)\n", runs / 10);
+    printf("\nL2 Latency: (%d runs)\n", runs / 100);
     printCalibrated(cachelat.l2);
     storeResults(cachelat.l3.calibration, "07CacheLat_L3_Calibration");
     storeResults(cachelat.l3.measurement, "07CacheLat_L3_Measurement");
-    printf("\nL3 Latency: (%d runs)\n", runs / 10);
+    printf("\nL3 Latency: (%d runs)\n", runs / 100);
     printCalibrated(cachelat.l3);
 
     return 0;
