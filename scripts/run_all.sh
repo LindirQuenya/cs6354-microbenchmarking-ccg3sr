@@ -8,17 +8,6 @@ cd "$SCRIPT_DIR"
 # Code to automatically compile and run all benchmarks
 cd ..
 
-sudo apt install make git jupyter pip python3 python3.13-venv
-if [[ ! -d venv ]]; then
-  python3 -m venv venv
-fi
-source venv/bin/activate
-pip install pandas matplotlib numpy
-
-make
+make clean; make
 # Run the benchmarks
 ./build/benchmark 1000000
-
-# Execute the Jupyter notebook and save output
-cd notebooks
-jupyter nbconvert --to notebook --execute generate_cpu_card.ipynb
