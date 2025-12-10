@@ -1,0 +1,13 @@
+#include "00_function_call.h"
+#include "01_context_switch.h"
+#include "02_fetch_throughput.h"
+#include "03_retire_throughput.h"
+#include "04_load_store_throughput.h"
+#include "05_branch_mispredict.h"
+#include "06_exec_unit_throughput.h"
+#include "07_cache_latency.h"
+#include "08_cache_bandwidth.h"
+#include "09_dram_latency.h"
+#include "10_dram_bandwidth.h"
+#include "11_smt_contention.h"
+
