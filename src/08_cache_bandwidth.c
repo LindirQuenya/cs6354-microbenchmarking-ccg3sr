@@ -1,5 +1,6 @@
 #include <x86intrin.h>
 #include <emmintrin.h>
+#include <immintrin.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -31,7 +32,7 @@ void setup_cachebw(void) {
 NOINLINE long measure_l1d_read(int count) {
     long long start, end;
     unsigned int tsc_aux;
-    unsigned char a;
+    register __m256i a asm("ymm0") = (__m256i)_mm256_setzero_ps();
     int i, j;
 
     // Pull the data into the L1d (warmup).
@@ -43,8 +44,13 @@ NOINLINE long measure_l1d_read(int count) {
 
     // Repeatedly read 4K from the L1d.
     for (j = 0; j < count; j++) {
-        for (i = 0; i < L1d_CACHE_SIZE / 8; i++) {
-            a = l1d_arr[i];
+        volatile __m256i *arr = (__m256i *)l1d_arr;
+        for (i = 0; i < L1d_CACHE_SIZE / 8 / 32; i++) {
+            arr += 1;
+            asm volatile("vmovdqu %[dest_ymm], [%[source]]"
+                         : [dest_ymm] "=x"(a)
+                         : [source] "r"(arr)
+                         : "memory");
         }
     }
 
@@ -52,6 +58,7 @@ NOINLINE long measure_l1d_read(int count) {
     end = __rdtscp(&tsc_aux);
     _mm_lfence();
 
+    // _mm256_store_si256((__m256i*)l1d_arr, a);
     return end - start;
 }
 
