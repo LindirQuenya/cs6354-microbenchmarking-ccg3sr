@@ -8,8 +8,7 @@
 #include "opt.h"
 
 #define FUNCTION_DEF(SPEC, RTYPE, RET, ...)                                    \
-    NOCONSTPROP NOINLINE RTYPE        \
-        function_##SPEC(__VA_ARGS__) {                                         \
+    NOCONSTPROP NOINLINE RTYPE function_##SPEC(__VA_ARGS__) {                  \
         asm("");                                                               \
         return RET;                                                            \
     }

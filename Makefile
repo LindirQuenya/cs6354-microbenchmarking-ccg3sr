@@ -4,6 +4,7 @@ LDFLAGS := -lpthread -lm
 BIN := build
 SRCS := $(wildcard src/*.c)
 
+.PHONY: all clean fmt
 all: $(BIN) $(BIN)/benchmark
 
 $(BIN)/benchmark: $(BIN) $(SRCS)
@@ -14,3 +15,6 @@ $(BIN):
 
 clean:
 	rm -rf $(BIN)
+
+fmt:
+	clang-format -i include/*.h src/*.c
