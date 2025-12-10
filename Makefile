@@ -1,20 +1,22 @@
 CC := gcc
 CFLAGS := -O3 -masm=intel -march=native -Wall -Wextra -Iinclude -fno-ipa-cp -fno-tree-vectorize -g
 LDFLAGS := -lpthread -lm
-BIN := build
+BINDIR := build
 SRCS := $(wildcard src/*.c)
+HEADERS := $(wildcard include/*.h)
 
 .PHONY: all clean fmt
-all: $(BIN) $(BIN)/benchmark
+all: $(BINDIR)/benchmark
 
-$(BIN)/benchmark: $(BIN) $(SRCS)
-	$(CC) $(CFLAGS) -o $@ $(SRCS) $(LDFLAGS)
+$(BINDIR)/benchmark: $(SRCS) $(HEADERS) | $(BINDIR)
+        $(CC) $(CFLAGS) -o $@ $(SRCS) $(LDFLAGS)
 
-$(BIN):
-	mkdir -p $(BIN)
+$(BINDIR):
+        mkdir -p $(BINDIR)
 
 clean:
-	rm -rf $(BIN)
+        rm -rf $(BINDIR)
 
 fmt:
-	clang-format -i include/*.h src/*.c
+        clang-format -i include/*.h src/*.c
+
