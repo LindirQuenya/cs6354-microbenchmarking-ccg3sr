@@ -54,7 +54,6 @@ NOINLINE long measure_l1i_calib(void) {
 NOINLINE long measure_l1d(void) {
     long long start, end;
     unsigned int tsc_aux;
-    // TODO check that this actually gets put in a reg.
     register unsigned char target;
     // Load the target cache line into L1d,L2,L3.
     target_cacheline[0] = 'b';
@@ -89,7 +88,6 @@ NOINLINE long measure_datacache_calib(void) {
 NOINLINE long measure_l2(void) {
     long long start, end;
     unsigned int tsc_aux;
-    // TODO check that this actually gets put in a reg.
     register unsigned char target;
     // Load the target cache line into L1d,L2,L3.
     target_cacheline[0] = 'b';
@@ -110,7 +108,6 @@ NOINLINE long measure_l2(void) {
 NOINLINE long measure_l3(void) {
     long long start, end;
     unsigned int tsc_aux;
-    // TODO check that this actually gets put in a reg.
     register unsigned char target;
     // Load the target cache line into L1d,L2,L3.
     target_cacheline[0] = 'b';

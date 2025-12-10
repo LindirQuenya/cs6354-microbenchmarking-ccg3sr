@@ -16,6 +16,7 @@
 #include "04_load_store_throughput.h"
 #include "05_branch_mispredict.h"
 #include "06_exec_unit_throughput.h"
+#include "07_cache_latency.h"
 
 void storeResults(struct runtime_stats stats, const char *benchmarkName) {
     FILE *file = fopen("results.csv", "a");
@@ -48,7 +49,8 @@ int main(int argc, char **argv) {
     }
 
     int runs = argc > 1 ? atoi(argv[1]) : 1000;
-
+#ifndef RUN_LAST_ONLY
+    // TODO clean up all these save names, they look kinda odd.
     /* Running microbenchmarks and generating results. */
     functioncall_results f = functioncall_measure_all(runs);
     storeResults(f.calibration, "00Calibration");
@@ -174,6 +176,24 @@ int main(int argc, char **argv) {
            (EXECUNIT_LOOPS_MEASUREMENT - EXECUNIT_LOOPS_CALIBRATION) * 8.0 /
                (execunit.idiv.measurement.median -
                 execunit.idiv.calibration.median));
+#endif
+    cache_latency_stats cachelat = cache_latency(runs / 10);
+    storeResults(cachelat.l1i.calibration, "07CacheLat_L1i_Calibration");
+    storeResults(cachelat.l1i.measurement, "07CacheLat_L1i_Measurement");
+    printf("\nL1i Latency: (%d runs)\n", runs / 10);
+    printCalibrated(cachelat.l1i);
+    storeResults(cachelat.l1d.calibration, "07CacheLat_L1d_Calibration");
+    storeResults(cachelat.l1d.measurement, "07CacheLat_L1d_Measurement");
+    printf("\nL1d Latency: (%d runs)\n", runs / 10);
+    printCalibrated(cachelat.l1d);
+    storeResults(cachelat.l2.calibration, "07CacheLat_L2_Calibration");
+    storeResults(cachelat.l2.measurement, "07CacheLat_L2_Measurement");
+    printf("\nL2 Latency: (%d runs)\n", runs / 10);
+    printCalibrated(cachelat.l2);
+    storeResults(cachelat.l3.calibration, "07CacheLat_L3_Calibration");
+    storeResults(cachelat.l3.measurement, "07CacheLat_L3_Measurement");
+    printf("\nL3 Latency: (%d runs)\n", runs / 10);
+    printCalibrated(cachelat.l3);
 
     return 0;
 }
