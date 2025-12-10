@@ -3,6 +3,9 @@
 
 #include "stats.h"
 
+#define SMT_LOOPS_CALIBRATION (10)
+#define SMT_LOOPS_MEASUREMENT (20)
+
 typedef struct {
     calibrated_stats competing;
     calibrated_stats complementary;

@@ -6,6 +6,11 @@
 #define L2_CACHE_SIZE  (256 * 1024)
 #define L3_CACHE_SIZE  (8192 * 1024)
 
+#define L1d_ASSOCIATIVITY (8) // TODO: Find associativity
+
+#define L1d_NUM_SETS  (L1d_CACHE_SIZE / (LINE_SIZE * L1d_ASSOCIATIVITY))
+#define L1d_NUM_LINES (L1d_CACHE_SIZE / LINE_SIZE)
+
 // If these aren't marked volatile the compiler optimizes out the cache-filling
 // operations.
 extern volatile
