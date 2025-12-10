@@ -32,8 +32,8 @@ void setup_cachebw(void) {
 NOINLINE long measure_l1d_read(int count) {
     long long start, end;
     unsigned int tsc_aux;
-    register __m256i ymm0 asm("ymm0") = (__m256i)_mm256_setzero_ps();
     int i, j;
+    register __m256i ymm0 asm("ymm0") = (__m256i)_mm256_setzero_ps();
 
     // Pull the data into the L1d (warmup).
     for (i = 0; l1d_arr[i] != 0; i++);
@@ -67,8 +67,8 @@ NOINLINE long measure_l1d_read(int count) {
 NOINLINE long measure_l2_read(int count) {
     long long start, end;
     unsigned int tsc_aux;
-    unsigned char a;
     int i, j;
+    register __m256i ymm0 asm("ymm0") = (__m256i)_mm256_setzero_ps();
 
     // Pull the data into the L2 (warmup).
     for (i = 0; l2_arr[i] != 0; i++);
@@ -79,8 +79,13 @@ NOINLINE long measure_l2_read(int count) {
 
     // Repeatedly read 64K from the L2.
     for (j = 0; j < count; j++) {
-        for (i = 0; i < L1d_CACHE_SIZE * 2; i++) {
-            a = l2_arr[i];
+        volatile __m256i *arr = (__m256i *)l2_arr;
+        for (i = 0; i < L1d_CACHE_SIZE * 2 / 32; i++) {
+            asm volatile("vmovdqu %[dest_ymm], [%[source]]"
+                         : [dest_ymm] "=x"(ymm0)
+                         : [source] "r"(arr)
+                         : "memory");
+            arr += 1;
         }
     }
 
@@ -94,8 +99,8 @@ NOINLINE long measure_l2_read(int count) {
 NOINLINE long measure_l3_read(int count) {
     long long start, end;
     unsigned int tsc_aux;
-    unsigned char a;
     int i, j;
+    register __m256i ymm0 asm("ymm0") = (__m256i)_mm256_setzero_ps();
 
     // Pull the data into the L3 (warmup).
     for (i = 0; l3_arr[i] != 0; i++);
@@ -106,8 +111,13 @@ NOINLINE long measure_l3_read(int count) {
 
     // Repeatedly read 512K from the L3.
     for (j = 0; j < count; j++) {
-        for (i = 0; i < L2_CACHE_SIZE * 2; i++) {
-            a = l3_arr[i];
+        volatile __m256i *arr = (__m256i *)l3_arr;
+        for (i = 0; i < L2_CACHE_SIZE * 2 / 32; i++) {
+            asm volatile("vmovdqu %[dest_ymm], [%[source]]"
+                         : [dest_ymm] "=x"(ymm0)
+                         : [source] "r"(arr)
+                         : "memory");
+            arr += 1;
         }
     }
 
@@ -154,6 +164,7 @@ NOINLINE long measure_l2_write(int count) {
     long long start, end;
     unsigned int tsc_aux;
     int i, j;
+    register __m256i ymm0 asm("ymm0") = (__m256i)_mm256_setzero_ps();
 
     // Pull the data into the L2 (warmup).
     for (i = 0; l2_arr[i] != 0; i++);
@@ -164,8 +175,13 @@ NOINLINE long measure_l2_write(int count) {
 
     // Repeatedly write 64K to the L2.
     for (j = 0; j < count; j++) {
-        for (i = 0; i < L1d_CACHE_SIZE * 2; i++) {
-            l2_arr[i] = 'a';
+        volatile __m256i *arr = (__m256i *)l2_arr;
+        for (i = 0; i < L1d_CACHE_SIZE * 2 / 32; i++) {
+            asm volatile("vmovdqa [%[dest]], %[src_ymm]"
+                         :
+                         : [src_ymm] "x"(ymm0), [dest] "r"(arr)
+                         : "memory");
+            arr += 1;
         }
     }
 
@@ -180,6 +196,7 @@ NOINLINE long measure_l3_write(int count) {
     long long start, end;
     unsigned int tsc_aux;
     int i, j;
+    register __m256i ymm0 asm("ymm0") = (__m256i)_mm256_setzero_ps();
 
     // Pull the data into the L3 (warmup).
     for (i = 0; l3_arr[i] != 0; i++);
@@ -190,8 +207,13 @@ NOINLINE long measure_l3_write(int count) {
 
     // Repeatedly write 512K to the L3.
     for (j = 0; j < count; j++) {
-        for (i = 0; i < L2_CACHE_SIZE * 2; i++) {
-            l3_arr[i] = 'a';
+        volatile __m256i *arr = (__m256i *)l3_arr;
+        for (i = 0; i < L2_CACHE_SIZE * 2 / 32; i++) {
+            asm volatile("vmovdqa [%[dest]], %[src_ymm]"
+                         :
+                         : [src_ymm] "x"(ymm0), [dest] "r"(arr)
+                         : "memory");
+            arr += 1;
         }
     }
 
