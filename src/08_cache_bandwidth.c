@@ -248,7 +248,7 @@ void displayResults_08(cache_bandwidth_stats stats) {
     printf("\nL1d Read  Time for (%d - %d) * 4KiB: (%d runs)\n",
            CACHEBW_LOOPS_MEASUREMENT, CACHEBW_LOOPS_CALIBRATION, runs);
     printCalibrated(stats.l1d.read);
-    printf("L1d Write Time for (%d - %d) * 4KiB: (%d runs)",
+    printf("L1d Write Time for (%d - %d) * 4KiB: (%d runs)\n",
            CACHEBW_LOOPS_MEASUREMENT, CACHEBW_LOOPS_CALIBRATION, runs);
     printCalibrated(stats.l1d.write);
     printf("Bytes per cycle: %f R, %f W\n",
