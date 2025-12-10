@@ -6,9 +6,6 @@
 #include "opt.h"
 #include "cache.h"
 
-volatile
-    __attribute__((aligned(64))) unsigned char dram_target_cacheline[LINE_SIZE];
-
 NOINLINE long measure_dram_calib(void) {
     long long start, end;
     unsigned int tsc_aux;
@@ -32,20 +29,20 @@ NOINLINE long measure_dram(void) {
     register unsigned char target;
 
     // Explicitly evict the target from the cache.
-    _mm_clflush((void *)dram_target_cacheline);
+    _mm_clflush((void *)target_cacheline);
 
     _mm_mfence();
     start = __rdtscp(&tsc_aux);
     _mm_lfence();
 
-    target = dram_target_cacheline[0];
+    target = target_cacheline[0];
 
     _mm_mfence();
     end = __rdtscp(&tsc_aux);
     _mm_lfence();
 
     // To avoid dead value elimination.
-    dram_target_cacheline[0] = target;
+    target_cacheline[0] = target;
     return end - start;
 }
 

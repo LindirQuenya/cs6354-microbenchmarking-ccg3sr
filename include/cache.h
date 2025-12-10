@@ -2,8 +2,18 @@
 #define MICROBENCH_CACHE_H
 
 #define LINE_SIZE      (64)
-#define L1d_CACHE_SIZE (32768)
+#define L1d_CACHE_SIZE (32 * 1024)
 #define L2_CACHE_SIZE  (256 * 1024)
 #define L3_CACHE_SIZE  (8192 * 1024)
 
+// If these aren't marked volatile the compiler optimizes out the cache-filling
+// operations.
+extern volatile
+    __attribute__((aligned(64))) unsigned char l1d_arr[L1d_CACHE_SIZE];
+extern volatile
+    __attribute__((aligned(64))) unsigned char l2_arr[L2_CACHE_SIZE];
+extern volatile
+    __attribute__((aligned(64))) unsigned char l3_arr[L3_CACHE_SIZE];
+extern volatile
+    __attribute__((aligned(64))) unsigned char target_cacheline[LINE_SIZE];
 #endif

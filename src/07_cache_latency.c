@@ -7,14 +7,6 @@
 #include "opt.h"
 #include "cache.h"
 
-// If these aren't marked volatile the compiler optimizes out the cache-filling
-// operations.
-volatile __attribute__((aligned(64))) unsigned char l1d_arr[L1d_CACHE_SIZE];
-volatile __attribute__((aligned(64))) unsigned char l2_arr[L2_CACHE_SIZE];
-
-volatile __attribute__((
-    aligned(64))) unsigned char cachlat_target_cacheline[LINE_SIZE];
-
 void setup_cachelat(void) {
     _mm_mfence();
     memset((void *)l1d_arr, 'a', L1d_CACHE_SIZE);
@@ -55,20 +47,20 @@ NOINLINE long measure_l1d(void) {
     unsigned int tsc_aux;
     register unsigned char target;
     // Load the target cache line into L1d,L2,L3.
-    cachlat_target_cacheline[0] = 'b';
+    target_cacheline[0] = 'b';
 
     _mm_mfence();
     start = __rdtscp(&tsc_aux);
     _mm_lfence();
 
-    target = cachlat_target_cacheline[0];
+    target = target_cacheline[0];
 
     _mm_mfence();
     end = __rdtscp(&tsc_aux);
     _mm_lfence();
 
     // To avoid dead value elimination.
-    cachlat_target_cacheline[0] = target;
+    target_cacheline[0] = target;
     return end - start;
 }
 
@@ -76,7 +68,7 @@ NOINLINE long measure_datacache_calib(void) {
     long long start, end;
     unsigned int tsc_aux;
     // Load the target cache line into L1d,L2,L3.
-    cachlat_target_cacheline[0] = 'b';
+    target_cacheline[0] = 'b';
 
     _mm_mfence();
     start = __rdtscp(&tsc_aux);
@@ -96,7 +88,7 @@ NOINLINE long measure_l2(void) {
     unsigned int tsc_aux;
     register unsigned char target;
     // Load the target cache line into L1d,L2,L3.
-    cachlat_target_cacheline[0] = 'b';
+    target_cacheline[0] = 'b';
     // But now fill up L1d with a different array.
     for (int i = 0; l1d_arr[i] != 0; i++);
 
@@ -104,14 +96,14 @@ NOINLINE long measure_l2(void) {
     start = __rdtscp(&tsc_aux);
     _mm_lfence();
 
-    target = cachlat_target_cacheline[0];
+    target = target_cacheline[0];
 
     _mm_mfence();
     end = __rdtscp(&tsc_aux);
     _mm_lfence();
 
     // To avoid dead value elimination.
-    cachlat_target_cacheline[0] = target;
+    target_cacheline[0] = target;
     return end - start;
 }
 
@@ -120,7 +112,7 @@ NOINLINE long measure_l3(void) {
     unsigned int tsc_aux;
     register unsigned char target;
     // Load the target cache line into L1d,L2,L3.
-    cachlat_target_cacheline[0] = 'b';
+    target_cacheline[0] = 'b';
     // But now fill up L2 (and thus also L1d) with a different array.
     for (int i = 0; l2_arr[i] != 0; i++);
 
@@ -128,14 +120,14 @@ NOINLINE long measure_l3(void) {
     start = __rdtscp(&tsc_aux);
     _mm_lfence();
 
-    target = cachlat_target_cacheline[0];
+    target = target_cacheline[0];
 
     _mm_mfence();
     end = __rdtscp(&tsc_aux);
     _mm_lfence();
 
     // To avoid dead value elimination.
-    cachlat_target_cacheline[0] = target;
+    target_cacheline[0] = target;
     return end - start;
 }
 
