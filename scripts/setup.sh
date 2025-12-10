@@ -8,10 +8,11 @@
 # Disable in BIOS:
 #  - Turbo boost
 #  - Power save modes
+# Previously disabled (but re-enabled for part 11):
 #  - SMT (hyper-threading)
 
 # Add to kernel parameters:
-# nohz_full=3 isolcpus=domain,managed_irq,3 irqaffinity=0-2
+# nohz_full=3,7 isolcpus=domain,managed_irq,3,7 irqaffinity=0-2
 
 # Disable ASLR to make memory stuff consistent
 echo 0 > /proc/sys/kernel/randomize_va_space
@@ -28,5 +29,4 @@ echo 0 > /proc/sys/kernel/randomize_va_space
 
 # Make power management be performance-focused rather than power-saving.
 echo performance > /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor
-
-# Then use taskset -c 3 {command}
+echo performance > /sys/devices/system/cpu/cpu7/cpufreq/scaling_governor

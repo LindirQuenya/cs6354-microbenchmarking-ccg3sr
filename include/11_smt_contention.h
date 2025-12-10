@@ -3,8 +3,8 @@
 
 #include "stats.h"
 
-#define SMT_LOOPS_CALIBRATION (10)
-#define SMT_LOOPS_MEASUREMENT (20)
+#define SMT_LOOPS_CALIBRATION (100)
+#define SMT_LOOPS_MEASUREMENT (200)
 
 typedef struct {
     calibrated_stats competing;
