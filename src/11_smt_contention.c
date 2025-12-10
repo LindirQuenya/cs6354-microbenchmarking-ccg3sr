@@ -1,4 +1,6 @@
 #include <pthread.h>
+#include <stdlib.h>
+#include <threads.h>
 #include <x86intrin.h>
 #include <emmintrin.h>
 #include <string.h>
@@ -10,11 +12,13 @@
 #include "cache.h"
 #include "harness.h"
 
-#define ARRLEN (L2_CACHE_SIZE / sizeof(int))
-int arr1[ARRLEN];
-int arr2[ARRLEN];
+#define ARRLEN (4 * L2_CACHE_SIZE / sizeof(int))
+int *arr1;
+int *arr2;
 
 void smt_setup(void) {
+	arr1 = malloc(ARRLEN);
+	arr2 = malloc(ARRLEN);
     memset(arr1, 12, ARRLEN);
     memset(arr2, 12, ARRLEN);
     __cpuid();
@@ -24,6 +28,7 @@ void mean_arr1(int *count) {
     volatile double mean;
     for (int i = 0; i < *count; i++) {
         mean = int_stats_mean(arr1, ARRLEN);
+		thrd_yield();
     }
 }
 
@@ -31,6 +36,7 @@ void mean_arr2(int *count) {
     volatile double mean;
     for (int i = 0; i < *count; i++) {
         mean = int_stats_mean(arr2, ARRLEN);
+		thrd_yield();
     }
 }
 
@@ -69,6 +75,7 @@ smt_contention_stats smt_contention(int iterations) {
             measure_smt_contention((void *)&mean_arr1, (void *)&mean_arr2);
     }
     s.competing = int_stats(times, iterations);
+	free(times);
 }
 
 void displayResults_11(smt_contention_stats stats) {

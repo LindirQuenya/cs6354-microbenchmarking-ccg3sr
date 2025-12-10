@@ -57,5 +57,9 @@ calibrated_stats dram_latency(int iterations) {
     for (i = 0; i < iterations; i++) {
         times[i] = measure_dram();
     }
+
+    free(times);
+    free(times_calib);
+
     return calibrated_int_stats(times, times_calib, iterations);
 }

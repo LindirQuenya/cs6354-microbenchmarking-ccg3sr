@@ -156,5 +156,9 @@ cache_latency_stats cache_latency(int iterations) {
         times[i] = measure_l3();
     }
     s.l3 = calibrated_int_stats(times, times_calib, iterations);
+
+    free(times);
+    free(times_calib);
+    
     return s;
 }

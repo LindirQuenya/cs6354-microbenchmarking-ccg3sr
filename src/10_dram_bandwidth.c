@@ -88,6 +88,10 @@ dram_bandwidth_stats dram_bandwidth(int iterations) {
     }
     s.dram.write = calibrated_int_stats(times, times_calib, iterations);
 
+    free(times);
+    free(times_calib);
+    free(dram_arr);
+
     return s;
 }
 
