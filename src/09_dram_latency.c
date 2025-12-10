@@ -60,10 +60,12 @@ calibrated_stats dram_latency(int iterations) {
         times[i] = measure_dram();
     }
 
+    calibrated_stats s = calibrated_int_stats(times, times_calib, iterations);
+
     free(times);
     free(times_calib);
 
-    return calibrated_int_stats(times, times_calib, iterations);
+    return s;
 }
 
 void storeResults_09(calibrated_stats stats) {
