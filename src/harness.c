@@ -1,3 +1,4 @@
+#include "11_smt_contention.h"
 #define _GNU_SOURCE
 #include <sched.h>
 #include <err.h>
@@ -203,7 +204,6 @@ int main(int argc, char **argv) {
     storeResults(dramlat.measurement, "09DRAMLat_Measurement");
     printf("\nDRAM Latency: (%d runs)\n", runs / 100);
     printCalibrated(dramlat);
-#endif
 
     cache_bandwidth_stats cachebw = cache_bandwidth(runs / 1000);
     storeResults_08(cachebw);
@@ -213,4 +213,8 @@ int main(int argc, char **argv) {
     storeResults_10(drambw);
     displayResults_10(drambw);
     return 0;
+#endif
+    smt_contention_stats smt = smt_contention(runs / 100000);
+    // storeResults_11(smt);
+    displayResults_11(smt);
 }
