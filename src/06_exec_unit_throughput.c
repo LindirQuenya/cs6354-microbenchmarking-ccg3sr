@@ -1,11 +1,13 @@
 #include <stdlib.h>
 #include <x86intrin.h>
 #include <emmintrin.h>
+#include <stdio.h>
 
 #include "06_exec_unit_throughput.h"
 #include "stats.h"
 #include "util.h"
 #include "opt.h"
+#include "harness.h"
 
 // 11 instructions per loop, but only 8 of them matter.
 NOINLINE NOUNROLL long loop_iadd(int count) {
@@ -97,4 +99,38 @@ exec_unit_stats execunit_throughput(int iterations) {
     free(times_calib);
 
     return s;
+}
+
+void storeResults_06(exec_unit_stats stats) {
+    storeResults(stats.iadd.calibration, "06ExecBW_Add_Calibration");
+    storeResults(stats.iadd.measurement, "06ExecBW_Add_Measurement");
+
+    storeResults(stats.imul.calibration, "06ExecBW_Mul_Calibration");
+    storeResults(stats.imul.measurement, "06ExecBW_Mul_Measurement");
+
+    storeResults(stats.idiv.calibration, "06ExecBW_Div_Calibration");
+    storeResults(stats.idiv.measurement, "06ExecBW_Div_Measurement");
+}
+
+void displayResults_06(exec_unit_stats stats) {
+    int runs = stats.iadd.measurement.n_samples;
+    int loopdiff = EXECUNIT_LOOPS_MEASUREMENT - EXECUNIT_LOOPS_CALIBRATION;
+
+    printf("\nInteger Add Throughput: (%d runs)\n", runs);
+    printCalibrated(stats.iadd);
+    printf("Adds per cycle (8 adds): %f\n",
+           loopdiff * 8.0 /
+               (stats.iadd.measurement.median - stats.iadd.calibration.median));
+
+    printf("\nInteger Mul Throughput: (%d runs)\n", runs);
+    printCalibrated(stats.imul);
+    printf("Muls per cycle (8 muls): %f\n",
+           loopdiff * 8.0 /
+               (stats.imul.measurement.median - stats.imul.calibration.median));
+
+    printf("\nInteger Div Throughput: (%d runs)\n", runs);
+    printCalibrated(stats.idiv);
+    printf("Divs per cycle (8 divs): %f\n",
+           loopdiff * 8.0 /
+               (stats.idiv.measurement.median - stats.idiv.calibration.median));
 }

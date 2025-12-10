@@ -4,10 +4,12 @@
 #include <unistd.h>
 #include <x86intrin.h>
 #include <emmintrin.h>
+#include <stdio.h>
 
 #include "00_function_call.h"
 #include "stats.h"
 #include "01_context_switch.h"
+#include "harness.h"
 
 calibrated_stats contextswitch_syscall(int iterations) {
     int n_extra = iterations / 10;
@@ -163,4 +165,33 @@ void contextswitch_pingpong(int *store) {
         _mm_lfence();
         store[i] = tsc_end - tsc_start;
     }
+}
+
+contextswitch_stats context_switch(int iterations) {
+    contextswitch_stats s;
+    s.syscall = contextswitch_syscall(iterations);
+    s.thread = contextswitch_thread(iterations / 1000);
+    return s;
+}
+
+void storeResults_01(contextswitch_stats stats) {
+    storeResults(stats.syscall.calibration,
+                 "01ContextSwitch_Syscall_Calibration");
+    storeResults(stats.syscall.measurement,
+                 "01ContextSwitch_Syscall_Measurement");
+
+    storeResults(stats.thread.calibration,
+                 "01ContextSwitch_Thread_Calibration");
+    storeResults(stats.thread.measurement,
+                 "01ContextSwitch_Thread_Measurement");
+}
+
+void displayResults_01(contextswitch_stats stats) {
+    int runs = stats.syscall.measurement.n_samples;
+
+    printf("\nSyscall: (%d runs)\n", runs);
+    printCalibrated(stats.syscall);
+
+    printf("\nThread switch: (%d runs)\n", runs / 1000);
+    printCalibrated(stats.thread);
 }

@@ -1,13 +1,15 @@
 #include <x86intrin.h>
 #include <emmintrin.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "07_cache_latency.h"
 #include "stats.h"
 #include "opt.h"
 #include "cache.h"
+#include "harness.h"
 
-void setup_cachelat(void) {
+void setup_stats(void) {
     _mm_mfence();
     memset((void *)l1d_arr, 'a', L1d_CACHE_SIZE);
     l1d_arr[L1d_CACHE_SIZE - 1] = 0;
@@ -136,7 +138,7 @@ cache_latency_stats cache_latency(int iterations) {
     int *times = malloc(sizeof(int) * iterations);
     int *times_calib = malloc(sizeof(int) * iterations);
     // Prep the arrays.
-    setup_cachelat();
+    setup_stats();
     cache_latency_stats s;
     for (i = 0; i < iterations; i++) {
         times[i] = measure_l1i();
@@ -161,4 +163,30 @@ cache_latency_stats cache_latency(int iterations) {
     free(times_calib);
 
     return s;
+}
+
+void storeResults_07(cache_latency_stats stats) {
+    storeResults(stats.l1i.calibration, "07CacheLat_L1i_Calibration");
+    storeResults(stats.l1i.measurement, "07CacheLat_L1i_Measurement");
+
+    storeResults(stats.l1d.calibration, "07CacheLat_L1d_Calibration");
+    storeResults(stats.l1d.measurement, "07CacheLat_L1d_Measurement");
+
+    storeResults(stats.l2.calibration, "07CacheLat_L2_Calibration");
+    storeResults(stats.l2.measurement, "07CacheLat_L2_Measurement");
+
+    storeResults(stats.l3.calibration, "07CacheLat_L3_Calibration");
+    storeResults(stats.l3.measurement, "07CacheLat_L3_Measurement");
+}
+
+void displayResults_07(cache_latency_stats stats) {
+    int runs = stats.l1d.calibration.n_samples;
+    printf("\nL1i Latency: (%d runs)\n", runs);
+    printCalibrated(stats.l1i);
+    printf("\nL1d Latency: (%d runs)\n", runs);
+    printCalibrated(stats.l1d);
+    printf("\nL2 Latency: (%d runs)\n", runs);
+    printCalibrated(stats.l2);
+    printf("\nL3 Latency: (%d runs)\n", runs);
+    printCalibrated(stats.l3);
 }

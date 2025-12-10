@@ -14,5 +14,7 @@ typedef struct {
 } load_store_stats;
 
 load_store_stats loadstore_throughput(int iterations);
+void storeResults_04(load_store_stats stats);
+void displayResults_04(load_store_stats stats);
 
 #endif

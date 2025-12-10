@@ -16,8 +16,10 @@ typedef struct {
     struct runtime_stats i_v;
     // The index is equal to the number of int parameters, e.g. 0 is void.
     struct runtime_stats v_iN[FNCALL_INT_ARGS_MAX + 1];
-} functioncall_results;
+} functioncall_stats;
 
-functioncall_results functioncall_measure_all(int runs);
+functioncall_stats functioncall_measure_all(int iterations);
+void storeResults_00(functioncall_stats stats);
+void displayResults_00(functioncall_stats stats);
 
 #endif

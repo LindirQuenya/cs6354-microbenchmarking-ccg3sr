@@ -12,5 +12,7 @@ typedef struct {
 } retire_stats;
 
 retire_stats retire_throughput(int iterations);
+void storeResults_03(retire_stats stats);
+void displayResults_03(retire_stats stats);
 
 #endif

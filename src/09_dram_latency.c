@@ -1,10 +1,12 @@
 #include <x86intrin.h>
 #include <emmintrin.h>
+#include <stdio.h>
 
 #include "09_dram_latency.h"
 #include "stats.h"
 #include "opt.h"
 #include "cache.h"
+#include "harness.h"
 
 NOINLINE long measure_dram_calib(void) {
     long long start, end;
@@ -62,4 +64,13 @@ calibrated_stats dram_latency(int iterations) {
     free(times_calib);
 
     return calibrated_int_stats(times, times_calib, iterations);
+}
+
+void storeResults_09(calibrated_stats stats) {
+    storeResults(stats.calibration, "09DRAMLat_Calibration");
+    storeResults(stats.measurement, "09DRAMLat_Measurement");
+}
+void displayResults_09(calibrated_stats stats) {
+    printf("\nDRAM Latency: (%d runs)\n", (int)stats.measurement.n_samples);
+    printCalibrated(stats);
 }

@@ -6,7 +6,13 @@
 #define FETCH_LOOPS_CALIBRATION 10000
 #define FETCH_LOOPS_MEASUREMENT 20000
 
-calibrated_stats fetch_throughput8(int iterations);
-calibrated_stats fetch_throughput16(int iterations);
+typedef struct {
+    calibrated_stats fetch8;
+    calibrated_stats fetch16;
+} fetch_throughput_stats;
+
+fetch_throughput_stats fetch_throughput(int iterations);
+void storeResults_02(fetch_throughput_stats stats);
+void displayResults_02(fetch_throughput_stats stats);
 
 #endif

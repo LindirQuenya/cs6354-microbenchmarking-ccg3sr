@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <x86intrin.h>
 #include <emmintrin.h>
+#include <stdio.h>
 
 #include "03_retire_throughput.h"
 #include "stats.h"
-#include "util.h"
+#include "harness.h"
 #include "opt.h"
 
 NOINLINE NOUNROLL long loop_lowILP(int count) {
@@ -77,4 +78,19 @@ retire_stats retire_throughput(int iterations) {
     free(times_calib);
 
     return s;
+}
+
+void storeResults_03(retire_stats stats) {
+    storeResults(stats.lowILP.calibration, "03RetireBW_LowILP_Calibration");
+    storeResults(stats.lowILP.measurement, "03RetireBW_LowILP_Measurement");
+
+    storeResults(stats.highILP.calibration, "03RetireBW_HighILP_Calibration");
+    storeResults(stats.highILP.measurement, "03RetireBW_HighILP_Measurement");
+}
+void displayResults_03(retire_stats stats) {
+    int runs = stats.highILP.measurement.n_samples;
+    printf("\nRetire Throughput, Low ILP: (%d runs)\n", runs);
+    printCalibrated(stats.lowILP);
+    printf("\nRetire Throughput, High ILP: (%d runs)\n", runs);
+    printCalibrated(stats.highILP);
 }

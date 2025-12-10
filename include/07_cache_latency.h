@@ -11,5 +11,7 @@ typedef struct {
 } cache_latency_stats;
 
 cache_latency_stats cache_latency(int iterations);
+void storeResults_07(cache_latency_stats stats);
+void displayResults_07(cache_latency_stats stats);
 
 #endif

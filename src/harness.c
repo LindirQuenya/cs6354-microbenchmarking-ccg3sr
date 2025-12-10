@@ -54,156 +54,42 @@ int main(int argc, char **argv) {
 
     int runs = argc > 1 ? atoi(argv[1]) : 1000;
 #ifndef RUN_LAST_ONLY
-    // TODO clean up all these save names, they look kinda odd.
     /* Running microbenchmarks and generating results. */
-    functioncall_results f = functioncall_measure_all(runs);
-    storeResults(f.calibration, "00Calibration");
-    storeResults(f.i_v, "00Fn_i_v");
-    calibrated_stats c = {f.calibration, f.i_v};
-    printf("00Fn_i_v:\n");
-    printCalibrated(c);
-    char *fncall_fmt = "00Fn_v_i%d";
-    // Add four just in case. I don't think we'll need any: the two from the %d
-    // should be plenty.
-    int fncall_label_len = strlen(fncall_fmt) + 4;
-    char *fncall_label = malloc(sizeof(char) * fncall_label_len);
-    for (int i = 0; i <= FNCALL_INT_ARGS_MAX; i++) {
-        snprintf(fncall_label, fncall_label_len, fncall_fmt, i);
-        storeResults(f.v_iN[i], fncall_label);
-        printf("%s: ", fncall_label);
-        printRuntimeStats(f.v_iN[i]);
-    }
+    functioncall_stats fncall = functioncall_measure_all(runs);
+    storeResults_00(fncall);
+    displayResults_00(fncall);
 
-    calibrated_stats syscall = contextswitch_syscall(runs);
-    storeResults(syscall.calibration, "01SyscallCalibration");
-    storeResults(syscall.measurement, "01SyscallMeasurement");
-    printf("\nSyscall: (%d runs)\n", runs);
-    printCalibrated(syscall);
+    contextswitch_stats contextsw = context_switch(runs);
+    storeResults_01(contextsw);
+    displayResults_01(contextsw);
 
-    calibrated_stats context_switch = contextswitch_thread(runs / 1000);
-    storeResults(context_switch.calibration, "01ThreadCalibration");
-    storeResults(context_switch.measurement, "01ThreadMeasurement");
-    printf("\nThread switch: (%d runs)\n", runs / 1000);
-    printCalibrated(context_switch);
-
-    calibrated_stats fetchthroughput8 = fetch_throughput8(runs / 10);
-    storeResults(fetchthroughput8.calibration, "02FetchCalibration8_10k");
-    storeResults(fetchthroughput8.measurement, "02FetchMeasurement8_20k");
-    printf("\nFetch Throughput (8 nops): (%d runs)\n", runs / 10);
-    printCalibrated(fetchthroughput8);
-    printf("Instr fetched per cycle (8 nops): %f\n",
-           (FETCH_LOOPS_MEASUREMENT - FETCH_LOOPS_CALIBRATION) * 10.0 /
-               (fetchthroughput8.measurement.median -
-                fetchthroughput8.calibration.median));
-    calibrated_stats fetchthroughput16 = fetch_throughput16(runs / 10);
-    storeResults(fetchthroughput16.calibration, "02FetchCalibration16_10k");
-    storeResults(fetchthroughput16.measurement, "02FetchMeasurement16_20k");
-    printf("\nFetch Throughput (16 nops): (%d runs)\n", runs / 10);
-    printCalibrated(fetchthroughput16);
-    printf("Instr fetched per cycle (16 nops): %f\n",
-           (FETCH_LOOPS_MEASUREMENT - FETCH_LOOPS_CALIBRATION) * 18.0 /
-               (fetchthroughput16.measurement.median -
-                fetchthroughput16.calibration.median));
+    fetch_throughput_stats fetch = fetch_throughput(runs / 10);
+    storeResults_02(fetch);
+    displayResults_02(fetch);
 
     retire_stats retire = retire_throughput(runs / 10);
-    storeResults(retire.lowILP.calibration, "03LowCalibration_10k");
-    storeResults(retire.lowILP.measurement, "03LowMeasurement_20k");
-    printf("\nRetire Throughput, Low ILP: (%d runs)\n", runs / 10);
-    printCalibrated(retire.lowILP);
-    storeResults(retire.highILP.calibration, "03HighCalibration_10k");
-    storeResults(retire.highILP.measurement, "03HighMeasurement_20k");
-    printf("\nRetire Throughput, High ILP: (%d runs)\n", runs / 10);
-    printCalibrated(retire.highILP);
+    storeResults_03(retire);
+    displayResults_03(retire);
 
     load_store_stats loadstore = loadstore_throughput(runs / 10);
-    storeResults(loadstore.load8.calibration, "04LoadCalibration8_10k");
-    storeResults(loadstore.load8.measurement, "04LoadMeasurement8_20k");
-    printf("\nL/S Throughput (8 loads): (%d runs)\n", runs / 10);
-    printCalibrated(loadstore.load8);
-    printf("L/S per cycle (8 loads): %f\n",
-           (LOADSTORE_LOOPS_MEASUREMENT - LOADSTORE_LOOPS_CALIBRATION) * 8.0 /
-               (loadstore.load8.measurement.median -
-                loadstore.load8.calibration.median));
-    storeResults(loadstore.load16.calibration, "04LoadCalibration16_10k");
-    storeResults(loadstore.load16.measurement, "04LoadMeasurement16_20k");
-    printf("\nL/S Throughput (16 loads): (%d runs)\n", runs / 10);
-    printCalibrated(loadstore.load16);
-    printf("L/S per cycle (16 loads): %f\n",
-           (LOADSTORE_LOOPS_MEASUREMENT - LOADSTORE_LOOPS_CALIBRATION) * 16.0 /
-               (loadstore.load16.measurement.median -
-                loadstore.load16.calibration.median));
-    storeResults(loadstore.store8.calibration, "04StoreCalibration8_10k");
-    storeResults(loadstore.store8.measurement, "04StoreMeasurement8_20k");
-    printf("\nL/S Throughput (8 stores): (%d runs)\n", runs / 10);
-    printCalibrated(loadstore.store8);
-    printf("L/S per cycle (8 stores): %f\n",
-           (LOADSTORE_LOOPS_MEASUREMENT - LOADSTORE_LOOPS_CALIBRATION) * 8.0 /
-               (loadstore.store8.measurement.median -
-                loadstore.store8.calibration.median));
-    storeResults(loadstore.store16.calibration, "04StoreCalibration16_10k");
-    storeResults(loadstore.store16.measurement, "04StoreMeasurement16_20k");
-    printf("\nL/S Throughput (16 stores): (%d runs)\n", runs / 10);
-    printCalibrated(loadstore.store16);
-    printf("L/S per cycle (16 stores): %f\n",
-           (LOADSTORE_LOOPS_MEASUREMENT - LOADSTORE_LOOPS_CALIBRATION) * 16.0 /
-               (loadstore.store16.measurement.median -
-                loadstore.store16.calibration.median));
+    storeResults_04(loadstore);
+    displayResults_04(loadstore);
 
     calibrated_stats branch_mispredict = mispredict(runs / 10);
-    storeResults(branch_mispredict.calibration, "05Predicted");
-    storeResults(branch_mispredict.measurement, "05Mispredicted");
-    printf("\nBranch Penalty: (%d runs)\n", runs / 10);
-    printCalibrated(branch_mispredict);
+    storeResults_05(branch_mispredict);
+    displayResults_05(branch_mispredict);
 
     exec_unit_stats execunit = execunit_throughput(runs / 10);
-    storeResults(execunit.iadd.calibration, "06ExecAddCalibration_10k");
-    storeResults(execunit.iadd.measurement, "06ExecAddMeasurement_20k");
-    printf("\nInteger Add Throughput: (%d runs)\n", runs / 10);
-    printCalibrated(execunit.iadd);
-    printf("Adds per cycle (8 adds): %f\n",
-           (EXECUNIT_LOOPS_MEASUREMENT - EXECUNIT_LOOPS_CALIBRATION) * 8.0 /
-               (execunit.iadd.measurement.median -
-                execunit.iadd.calibration.median));
-    storeResults(execunit.imul.calibration, "06ExecMulCalibration_10k");
-    storeResults(execunit.imul.measurement, "06ExecMulMeasurement_20k");
-    printf("\nInteger Mul Throughput: (%d runs)\n", runs / 10);
-    printCalibrated(execunit.imul);
-    printf("Muls per cycle (8 muls): %f\n",
-           (EXECUNIT_LOOPS_MEASUREMENT - EXECUNIT_LOOPS_CALIBRATION) * 8.0 /
-               (execunit.imul.measurement.median -
-                execunit.imul.calibration.median));
-    storeResults(execunit.idiv.calibration, "06ExecDivCalibration_10k");
-    storeResults(execunit.idiv.measurement, "06ExecDivMeasurement_20k");
-    printf("\nInteger Div Throughput: (%d runs)\n", runs / 10);
-    printCalibrated(execunit.idiv);
-    printf("Divs per cycle (8 divs): %f\n",
-           (EXECUNIT_LOOPS_MEASUREMENT - EXECUNIT_LOOPS_CALIBRATION) * 8.0 /
-               (execunit.idiv.measurement.median -
-                execunit.idiv.calibration.median));
+    storeResults_06(execunit);
+    displayResults_06(execunit);
 
     cache_latency_stats cachelat = cache_latency(runs / 100);
-    storeResults(cachelat.l1i.calibration, "07CacheLat_L1i_Calibration");
-    storeResults(cachelat.l1i.measurement, "07CacheLat_L1i_Measurement");
-    printf("\nL1i Latency: (%d runs)\n", runs / 100);
-    printCalibrated(cachelat.l1i);
-    storeResults(cachelat.l1d.calibration, "07CacheLat_L1d_Calibration");
-    storeResults(cachelat.l1d.measurement, "07CacheLat_L1d_Measurement");
-    printf("\nL1d Latency: (%d runs)\n", runs / 100);
-    printCalibrated(cachelat.l1d);
-    storeResults(cachelat.l2.calibration, "07CacheLat_L2_Calibration");
-    storeResults(cachelat.l2.measurement, "07CacheLat_L2_Measurement");
-    printf("\nL2 Latency: (%d runs)\n", runs / 100);
-    printCalibrated(cachelat.l2);
-    storeResults(cachelat.l3.calibration, "07CacheLat_L3_Calibration");
-    storeResults(cachelat.l3.measurement, "07CacheLat_L3_Measurement");
-    printf("\nL3 Latency: (%d runs)\n", runs / 100);
-    printCalibrated(cachelat.l3);
+    storeResults_07(cachelat);
+    displayResults_07(cachelat);
 
     calibrated_stats dramlat = dram_latency(runs / 100);
-    storeResults(dramlat.calibration, "09DRAMLat_Calibration");
-    storeResults(dramlat.measurement, "09DRAMLat_Measurement");
-    printf("\nDRAM Latency: (%d runs)\n", runs / 100);
-    printCalibrated(dramlat);
+    storeResults_09(dramlat);
+    displayResults_09(dramlat);
 
     cache_bandwidth_stats cachebw = cache_bandwidth(runs / 1000);
     storeResults_08(cachebw);

@@ -1,6 +1,10 @@
-#include "stats.h"
 #include <x86intrin.h>
 #include <emmintrin.h>
+#include <stdio.h>
+
+#include "harness.h"
+#include "stats.h"
+#include "05_branch_mispredict.h"
 
 __attribute__((optimize("Og"))) int measure_branches(int rounds,
                                                      int threshold) {
@@ -28,4 +32,13 @@ calibrated_stats mispredict(int iterations) {
     free(times);
     free(times_calib);
     return s;
+}
+
+void storeResults_05(calibrated_stats stats) {
+    storeResults(stats.calibration, "05BranchPred_Mispredict_Calibration");
+    storeResults(stats.measurement, "05BranchPred_Mispredict_Measurement");
+}
+void displayResults_05(calibrated_stats stats) {
+    printf("\nBranch Penalty: (%d runs)\n", (int)stats.calibration.n_samples);
+    printCalibrated(stats);
 }

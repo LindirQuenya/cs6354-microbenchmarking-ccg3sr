@@ -1,11 +1,13 @@
 #include <stdlib.h>
 #include <x86intrin.h>
 #include <emmintrin.h>
+#include <stdio.h>
 
 #include "04_load_store_throughput.h"
 #include "stats.h"
 #include "util.h"
 #include "opt.h"
+#include "harness.h"
 
 // 11 instructions per iteration, but only 8 are loads.
 NOINLINE NOUNROLL long loop_load8(int count) {
@@ -107,4 +109,49 @@ load_store_stats loadstore_throughput(int iterations) {
     free(times_calib);
 
     return s;
+}
+
+void storeResults_04(load_store_stats stats) {
+
+    storeResults(stats.load8.calibration, "04LoadStore_Load8_Calibration");
+    storeResults(stats.load8.measurement, "04LoadStore_Load8_Measurement");
+
+    storeResults(stats.load16.calibration, "04LoadStore_Load16_Calibration");
+    storeResults(stats.load16.measurement, "04LoadStore_Load16_Measurement");
+
+    storeResults(stats.store8.calibration, "04LoadStore_Store8_Calibration");
+    storeResults(stats.store8.measurement, "04LoadStore_Store8_Measurement");
+
+    storeResults(stats.store16.calibration, "04LoadStore_Store16_Calibration");
+    storeResults(stats.store16.measurement, "04LoadStore_Store16_Measurement");
+}
+void displayResults_04(load_store_stats stats) {
+    int runs = stats.load16.measurement.n_samples;
+    int loopdiff = LOADSTORE_LOOPS_MEASUREMENT - LOADSTORE_LOOPS_CALIBRATION;
+    printf("\nL/S Throughput (8 loads): (%d runs)\n", runs);
+    printCalibrated(stats.load8);
+    printf(
+        "L/S per cycle (8 loads): %f\n",
+        loopdiff * 8.0 /
+            (stats.load8.measurement.median - stats.load8.calibration.median));
+
+    printf("\nL/S Throughput (16 loads): (%d runs)\n", runs);
+    printCalibrated(stats.load16);
+    printf("L/S per cycle (16 loads): %f\n",
+           loopdiff * 16.0 /
+               (stats.load16.measurement.median -
+                stats.load16.calibration.median));
+
+    printf("\nL/S Throughput (8 stores): (%d runs)\n", runs);
+    printCalibrated(stats.store8);
+    printf("L/S per cycle (8 stores): %f\n",
+           loopdiff * 8.0 /
+               (stats.store8.measurement.median -
+                stats.store8.calibration.median));
+    printf("\nL/S Throughput (16 stores): (%d runs)\n", runs);
+    printCalibrated(stats.store16);
+    printf("L/S per cycle (16 stores): %f\n",
+           loopdiff * 16.0 /
+               (stats.store16.measurement.median -
+                stats.store16.calibration.median));
 }

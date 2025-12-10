@@ -13,5 +13,7 @@ typedef struct {
 } exec_unit_stats;
 
 exec_unit_stats execunit_throughput(int iterations);
+void storeResults_06(exec_unit_stats stats);
+void displayResults_06(exec_unit_stats stats);
 
 #endif

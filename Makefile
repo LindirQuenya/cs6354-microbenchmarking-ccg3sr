@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -O3 -march=native -Wall -Wextra -Iinclude -fno-ipa-cp -fno-tree-vectorize -D RUN_LAST_ONLY -g
+CFLAGS := -O3 -march=native -Wall -Wextra -Iinclude -fno-ipa-cp -fno-tree-vectorize -g
 LDFLAGS := -lpthread -lm
 BIN := build
 SRCS := $(wildcard src/*.c)

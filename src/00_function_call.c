@@ -1,10 +1,13 @@
 #include <sys/cdefs.h>
 #include <emmintrin.h>
 #include <x86intrin.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "00_function_call.h"
 #include "stats.h"
 #include "util.h"
+#include "harness.h"
 #include "opt.h"
 
 #define FUNCTION_DEF(SPEC, RTYPE, RET, ...)                                    \
@@ -109,13 +112,41 @@ static int (*int_measure_ptr[FNCALL_INT_ARGS_MAX + 1])(void) = {
     functioncall_measure_v_i8, functioncall_measure_v_i9,
     functioncall_measure_v_i10};
 
-functioncall_results functioncall_measure_all(int runs) {
-    functioncall_results f;
-    f.calibration =
-        functioncall_measure_multi(functioncall_measure_nothing, runs);
-    f.i_v = functioncall_measure_multi(functioncall_measure_i_v, runs);
+functioncall_stats functioncall_measure_all(int iterations) {
+    functioncall_stats stats;
+    stats.calibration =
+        functioncall_measure_multi(functioncall_measure_nothing, iterations);
+    stats.i_v =
+        functioncall_measure_multi(functioncall_measure_i_v, iterations);
     for (int n = 0; n <= FNCALL_INT_ARGS_MAX; n++) {
-        f.v_iN[n] = functioncall_measure_multi(int_measure_ptr[n], runs);
+        stats.v_iN[n] =
+            functioncall_measure_multi(int_measure_ptr[n], iterations);
     }
-    return f;
+    return stats;
+}
+
+void storeResults_00(functioncall_stats stats) {
+
+    storeResults(stats.calibration, "00FunctionCall_All_Calibration");
+    storeResults(stats.i_v, "00FunctionCall_i:v_Measurement");
+    char *fncall_fmt = "00FunctionCall_v:i%d_Measurement";
+    // Add four just in case. I don't think we'll need any: the two from the %d
+    // should be plenty.
+    int fncall_label_len = strlen(fncall_fmt) + 4;
+    char *fncall_label = malloc(sizeof(char) * fncall_label_len);
+    for (int i = 0; i <= FNCALL_INT_ARGS_MAX; i++) {
+        snprintf(fncall_label, fncall_label_len, fncall_fmt, i);
+        storeResults(stats.v_iN[i], fncall_label);
+    }
+    free(fncall_label);
+}
+
+void displayResults_00(functioncall_stats stats) {
+    calibrated_stats c = {stats.calibration, stats.i_v};
+    printf("Function call: int <- void:\n");
+    printCalibrated(c);
+    for (int i = 0; i <= FNCALL_INT_ARGS_MAX; i++) {
+        printf("Function call: void <- int x %d:\n", i);
+        printRuntimeStats(stats.v_iN[i]);
+    }
 }
