@@ -7,7 +7,7 @@
 #include "util.h"
 #include "opt.h"
 
-// 11 instructions per iteration, ish.
+// 11 instructions per iteration, but only 8 are loads.
 NOINLINE NOUNROLL long loop_load8(int count) {
     long long start, end;
     unsigned int tsc_aux;
@@ -20,10 +20,11 @@ NOINLINE NOUNROLL long loop_load8(int count) {
     }
     end = __rdtscp(&tsc_aux);
     _mm_lfence();
+    temp = reg;
     return end - start;
 }
 
-// 19 instructions per iteration, ish.
+// 19 instructions per iteration, but only 16 are loads.
 NOINLINE NOUNROLL long loop_load16(int count) {
     long long start, end;
     unsigned int tsc_aux;
@@ -36,6 +37,7 @@ NOINLINE NOUNROLL long loop_load16(int count) {
     }
     end = __rdtscp(&tsc_aux);
     _mm_lfence();
+    temp = reg;
     return end - start;
 }
 

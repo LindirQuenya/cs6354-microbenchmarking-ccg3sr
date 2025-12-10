@@ -7,7 +7,7 @@
 #include "util.h"
 #include "opt.h"
 
-NOINLINE_NOUNROLL long loop_lowILP(int count) {
+NOINLINE NOUNROLL long loop_lowILP(int count) {
     long long start, end;
     unsigned int tsc_aux;
     double f0 = 4.0, f1 = 2.0;
@@ -31,7 +31,7 @@ NOINLINE_NOUNROLL long loop_lowILP(int count) {
     return end - start;
 }
 
-NOINLINE_NOUNROLL long loop_highILP(int count) {
+NOINLINE NOUNROLL long loop_highILP(int count) {
     long long start, end;
     unsigned int tsc_aux;
     double f0 = 4.0, f1 = 2.0;
