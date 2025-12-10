@@ -17,6 +17,7 @@
 #include "05_branch_mispredict.h"
 #include "06_exec_unit_throughput.h"
 #include "07_cache_latency.h"
+#include "08_cache_bandwidth.h"
 #include "09_dram_latency.h"
 
 void storeResults(struct runtime_stats stats, const char *benchmarkName) {
@@ -196,11 +197,15 @@ int main(int argc, char **argv) {
     printf("\nL3 Latency: (%d runs)\n", runs / 100);
     printCalibrated(cachelat.l3);
 
-#endif
     calibrated_stats dramlat = dram_latency(runs / 100);
     storeResults(dramlat.calibration, "09DRAMLat_Calibration");
     storeResults(dramlat.measurement, "09DRAMLat_Measurement");
     printf("\nDRAM Latency: (%d runs)\n", runs / 100);
     printCalibrated(dramlat);
+#endif
+
+    cache_bandwidth_stats cachebw = cache_bandwidth(runs / 1000);
+    storeResults_08(cachebw);
+    displayResults_08(cachebw);
     return 0;
 }
