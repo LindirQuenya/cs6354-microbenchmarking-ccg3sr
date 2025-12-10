@@ -9,14 +9,14 @@ HEADERS := $(wildcard include/*.h)
 all: $(BINDIR)/benchmark
 
 $(BINDIR)/benchmark: $(SRCS) $(HEADERS) | $(BINDIR)
-        $(CC) $(CFLAGS) -o $@ $(SRCS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $(SRCS) $(LDFLAGS)
 
 $(BINDIR):
-        mkdir -p $(BINDIR)
+	mkdir -p $(BINDIR)
 
 clean:
-        rm -rf $(BINDIR)
+	rm -rf $(BINDIR)
 
 fmt:
-        clang-format -i include/*.h src/*.c
+	clang-format -i include/*.h src/*.c
 
