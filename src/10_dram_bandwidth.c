@@ -106,10 +106,10 @@ void displayResults_10(dram_bandwidth_stats stats) {
     int runs = stats.dram.read.measurement.n_samples;
     double loopdiff = DRAMBW_LOOPS_MEASUREMENT - DRAMBW_LOOPS_CALIBRATION;
 
-    printf("\nL1d Read  Time for (%d - %d) * 4KiB: (%d runs)\n",
+    printf("\nDREAM Read  Time for (%d - %d) * 32MiB: (%d runs)\n",
            DRAMBW_LOOPS_MEASUREMENT, DRAMBW_LOOPS_CALIBRATION, runs);
     printCalibrated(stats.dram.read);
-    printf("L1d Write Time for (%d - %d) * 4KiB: (%d runs)\n",
+    printf("DRAM Write Time for (%d - %d) * 32MiB: (%d runs)\n",
            DRAMBW_LOOPS_MEASUREMENT, DRAMBW_LOOPS_CALIBRATION, runs);
     printCalibrated(stats.dram.write);
     printf("Bytes per cycle: %f R, %f W\n",

@@ -43,7 +43,7 @@ NOINLINE long measure_l1d_read(int count) {
 
     // Repeatedly read 4K from the L1d.
     for (j = 0; j < count; j++) {
-        for (i = 0; i < L1d_CACHE_SIZE / 4; i++) {
+        for (i = 0; i < L1d_CACHE_SIZE / 8; i++) {
             a = l1d_arr[i];
         }
     }
