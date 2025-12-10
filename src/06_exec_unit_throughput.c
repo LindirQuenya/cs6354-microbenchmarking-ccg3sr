@@ -8,7 +8,7 @@
 #include "opt.h"
 
 // 11 instructions per loop, but only 8 of them matter.
-NOINLINE_NOUNROLL long loop_iadd(int count) {
+NOINLINE NOUNROLL long loop_iadd(int count) {
     long long start, end;
     unsigned int tsc_aux;
     volatile int temp = 0;
@@ -30,7 +30,7 @@ NOINLINE_NOUNROLL long loop_iadd(int count) {
 }
 
 // 11 instructions per loop, but only 8 matter.
-NOINLINE_NOUNROLL long loop_imul(int count) {
+NOINLINE NOUNROLL long loop_imul(int count) {
     long long start, end;
     unsigned int tsc_aux;
     volatile int temp = 0;
@@ -50,7 +50,7 @@ NOINLINE_NOUNROLL long loop_imul(int count) {
 }
 
 // 21 instructions per loop, but only 8 of them are div (time-intensive)
-NOINLINE_NOUNROLL long loop_idiv(int count) {
+NOINLINE NOUNROLL long loop_idiv(int count) {
     long long start, end;
     unsigned int tsc_aux;
     volatile int temp = 0;

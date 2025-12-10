@@ -8,7 +8,7 @@
 #include "opt.h"
 
 // 11 instructions per iteration, ish.
-NOINLINE_NOUNROLL long loop_load8(int count) {
+NOINLINE NOUNROLL long loop_load8(int count) {
     long long start, end;
     unsigned int tsc_aux;
     volatile int temp = 0;
@@ -24,7 +24,7 @@ NOINLINE_NOUNROLL long loop_load8(int count) {
 }
 
 // 19 instructions per iteration, ish.
-NOINLINE_NOUNROLL long loop_load16(int count) {
+NOINLINE NOUNROLL long loop_load16(int count) {
     long long start, end;
     unsigned int tsc_aux;
     volatile int temp = 0;
@@ -39,7 +39,7 @@ NOINLINE_NOUNROLL long loop_load16(int count) {
     return end - start;
 }
 
-NOINLINE_NOUNROLL long loop_store8(int count) {
+NOINLINE NOUNROLL long loop_store8(int count) {
     long long start, end;
     unsigned int tsc_aux;
     volatile int temp = 0;
@@ -55,7 +55,7 @@ NOINLINE_NOUNROLL long loop_store8(int count) {
     return end - start;
 }
 
-NOINLINE_NOUNROLL long loop_store16(int count) {
+NOINLINE NOUNROLL long loop_store16(int count) {
     long long start, end;
     unsigned int tsc_aux;
     volatile int temp = 0;

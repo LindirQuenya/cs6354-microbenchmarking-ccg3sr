@@ -5,9 +5,10 @@
 #include "00_function_call.h"
 #include "stats.h"
 #include "util.h"
+#include "opt.h"
 
 #define FUNCTION_DEF(SPEC, RTYPE, RET, ...)                                    \
-    __attribute__((optimize("no-ipa-cp"))) __attribute_noinline__ RTYPE        \
+    NOCONSTPROP NOINLINE RTYPE        \
         function_##SPEC(__VA_ARGS__) {                                         \
         asm("");                                                               \
         return RET;                                                            \
