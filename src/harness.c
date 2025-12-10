@@ -98,9 +98,9 @@ int main(int argc, char **argv) {
     dram_bandwidth_stats drambw = dram_bandwidth(runs / 10000);
     storeResults_10(drambw);
     displayResults_10(drambw);
-    return 0;
 #endif
-    smt_contention_stats smt = smt_contention(runs / 100000);
-    // storeResults_11(smt);
+    smt_contention_stats smt = smt_contention(runs / 100);
+    storeResults_11(smt);
     displayResults_11(smt);
+    return 0;
 }

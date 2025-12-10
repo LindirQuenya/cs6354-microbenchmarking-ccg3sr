@@ -155,11 +155,13 @@ smt_contention_stats smt_contention(int iterations) {
 }
 
 void storeResults_11(smt_contention_stats stats) {
-    storeResults(stats.complementary.calibration,"11SMT_Complementary_Calibration");
-    storeResults(stats.complementary.measurement,"11SMT_Complementary_Measurement");
+    storeResults(stats.complementary.calibration,
+                 "11SMT_Complementary_Calibration");
+    storeResults(stats.complementary.measurement,
+                 "11SMT_Complementary_Measurement");
 
-    storeResults(stats.competing.calibration,"11SMT_Competing_Calibration");
-    storeResults(stats.competing.measurement,"11SMT_Competing_Measurement");
+    storeResults(stats.competing.calibration, "11SMT_Competing_Calibration");
+    storeResults(stats.competing.measurement, "11SMT_Competing_Measurement");
 }
 
 void displayResults_11(smt_contention_stats stats) {
