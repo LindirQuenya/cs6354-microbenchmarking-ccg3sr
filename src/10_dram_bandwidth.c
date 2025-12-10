@@ -2,6 +2,7 @@
 #include <emmintrin.h>
 #include <string.h>
 #include <stdio.h>
+#include <immintrin.h>
 
 #include "10_dram_bandwidth.h"
 #include "stats.h"
@@ -21,8 +22,8 @@ void setup_drambw(void) {
 NOINLINE long measure_dram_read(int count) {
     long long start, end;
     unsigned int tsc_aux;
-    unsigned char a;
     int i, j;
+    register __m256i ymm0 asm("ymm0") = (__m256i)_mm256_setzero_ps();
 
     // Don't need a warmup this time, it'll already be in RAM.
 
@@ -32,9 +33,14 @@ NOINLINE long measure_dram_read(int count) {
 
     // Repeatedly read 32M from main memory.
     for (j = 0; j < count; j++) {
-        for (i = 0; i < L3_CACHE_SIZE * 4; i++) {
-            a = dram_arr[i];
-        };
+        volatile __m256i *arr = (__m256i *)dram_arr;
+        for (i = 0; i < L3_CACHE_SIZE * 4 / 32; i++) {
+            asm volatile("vmovdqu %[dest_ymm], [%[source]]"
+                         : [dest_ymm] "=x"(ymm0)
+                         : [source] "r"(arr)
+                         : "memory");
+            arr += 1;
+        }
     }
 
     _mm_mfence();
@@ -48,6 +54,7 @@ NOINLINE long measure_dram_write(int count) {
     long long start, end;
     unsigned int tsc_aux;
     int i, j;
+    register __m256i ymm0 asm("ymm0") = (__m256i)_mm256_setzero_ps();
 
     // Pull the data into the L2 (warmup).
     for (i = 0; l2_arr[i] != 0; i++);
@@ -58,8 +65,13 @@ NOINLINE long measure_dram_write(int count) {
 
     // Repeatedly write 32M to main memory.
     for (j = 0; j < count; j++) {
-        for (i = 0; i < L3_CACHE_SIZE * 4; i++) {
-            dram_arr[i] = 'a';
+        volatile __m256i *arr = (__m256i *)dram_arr;
+        for (i = 0; i < L3_CACHE_SIZE * 4 / 32; i++) {
+            asm volatile("vmovdqa [%[dest]], %[src_ymm]"
+                         :
+                         : [src_ymm] "x"(ymm0), [dest] "r"(arr)
+                         : "memory");
+            arr += 1;
         }
     }
 
