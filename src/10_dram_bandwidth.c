@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <x86intrin.h>
 #include <emmintrin.h>
 #include <string.h>
@@ -14,7 +15,7 @@ volatile unsigned char *dram_arr;
 
 void setup_drambw(void) {
     _mm_mfence();
-    dram_arr = malloc(L3_CACHE_SIZE * 4);
+    dram_arr = aligned_alloc(L1d_CACHE_SIZE, L3_CACHE_SIZE * 4);
     memset(dram_arr, 'a', L3_CACHE_SIZE * 4);
     __cpuid();
 }
