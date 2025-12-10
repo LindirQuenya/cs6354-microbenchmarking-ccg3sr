@@ -9,19 +9,23 @@
 #include "opt.h"
 #include "harness.h"
 
-// 11 instructions per loop, but only 8 of them matter.
+// 26 addition (lea, add, and inc) instructions per loop.
 NOINLINE NOUNROLL long loop_iadd(int count) {
     long long start, end;
     unsigned int tsc_aux;
     volatile int temp = 0;
     register int reg1 = temp;
     register int reg2 = temp;
+    register int reg3 = temp;
+    register int reg4 = temp;
+    register int reg5 = temp;
     start = __rdtscp(&tsc_aux);
     _mm_lfence();
     for (int i = 0; i < count; i++) {
         // This is sufficiently complicated that the compiler
         // won't turn it into a multiplication.
-        REP4(reg1 += reg2; reg2 += reg1;)
+        REP4(reg1 += reg2 + reg3; reg2 = reg3 + reg4; reg3 = reg3 + reg5;
+             reg4 = reg4 + reg5; reg5 = reg5 + reg1;)
     }
     end = __rdtscp(&tsc_aux);
     _mm_lfence();
@@ -119,7 +123,7 @@ void displayResults_06(exec_unit_stats stats) {
     printf("\nInteger Add Throughput: (%d runs)\n", runs);
     printCalibrated(stats.iadd);
     printf("Adds per cycle (8 adds): %f\n",
-           loopdiff * 8.0 /
+           loopdiff * 26.0 /
                (stats.iadd.measurement.median - stats.iadd.calibration.median));
 
     printf("\nInteger Mul Throughput: (%d runs)\n", runs);
